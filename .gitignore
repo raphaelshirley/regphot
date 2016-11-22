@@ -1,0 +1,4 @@
+#Untracked files
+
+#Ignore generated fits files
+*.fits

@@ -1,0 +1,8 @@
+pip packages:
+astropy
+pyprofit
+
+Other software:
+galfit
+galfitm
+sextractor

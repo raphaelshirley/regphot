@@ -17,27 +17,29 @@ sp = SDSS.get_spectra(matches=xid)
 im = SDSS.get_images(matches=xid, band='g')
 plate = xid[0]['plate']
 
+print(plate)
 
-for f in os.listdir('./SDSS/'):
+for f in os.listdir('/Users/rs548/Documents/Science/PeteHurley/SDSS/'):
     print(f)
 
 def getPlateFits(position,bandName):
     #First check if it is already there by looping through files
     pos = coordinates.SkyCoord(position, frame='icrs')
     xid = SDSS.query_region(pos)
-    bandName = 'g'
-    plate = xid[0]['plate']
-    filename = str(plate) + '-' + bandName + '.fits'
-    alreadyDownloaded = False
-    for f in os.listdir('./SDSS/'):
-        print(f)
-        if f = filename
-            alreadyDownloaded = True
-    
-    if alreadyDownloaded = False:
-        im = SDSS.get_images(matches=xid, band=bandName)
-        im.writeto(filename)
-    else:
-        im = fits.open('./SDSS/' + filename)
+#    bandName = 'g'
+#    plate = xid[0]['plate']
+    images = SDSS.get_images(matches=xid, band=bandName)
+#    filename = str(plate) + '-' + bandName + '.fits'
+#    alreadyDownloaded = False
+#    for f in os.listdir('/Users/rs548/Documents/Science/PeteHurley/SDSS/'):
+#        print(f)
+#        if f == filename:
+#            alreadyDownloaded = True
+#    
+#    if alreadyDownloaded == False:
+#        im = SDSS.get_images(matches=xid, band=bandName)
+#        im.writeto('/Users/rs548/Documents/Science/PeteHurley/SDSS/' + filename)
+#    else:
+#        im = fits.open('/Users/rs548/Documents/Science/PeteHurley/SDSS/' + filename)
         
-    return im
+    return images

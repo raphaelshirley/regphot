@@ -12,9 +12,22 @@ import subprocess
 #import astropy
 #from astropy.io import fits
 
-def optimise(fitsfile):
+def optimiseM(images,source):
     print('galfitm.py has been called')
-    filename=str(fitsfile)
+    filenames=''
+    sourcename = source
+    bandlabels=''
+    n=0
+    for band in images:
+        if not n == 0:
+            filenames = filenames + ','
+            bandlabels = bandlabels + ','
+        n = n + 1
+        filenames = (filenames + '/Users/rs548/Documents/Science/PeteHurley/galfitm/'
+                                + source + '-' + band[0] + '.fits')
+        bandlabels = bandlabels + band[0]
+
+
     method = 0
     inputText = """
     ================================================================================
@@ -30,20 +43,20 @@ def optimise(fitsfile):
     # the number of input data images defines <nbands>
     # the order of the bands must be maintained in all multi-band options
     # the first band in the list is the 'reference band'
-    A) gal-r.fits,gal-g.fits,gal-i.fits
+    A) {filenames}
     
     # Band labels (CSL of <nbands> labels containing no whitespace)
     # (these must be unique in a case-insensitive manner)
     # (can be omitted if fitting a single band)
-    A1) r,g,i
+    A1) {bandlabels}
     
     # Band wavelengths (CSL of values)
     # (choice of wavelength units is arbitrary, as long as consistent,
     #  but affects the resulting wavelength-dependence parameters)
-    A2) 6220,4750,7630
+    A2) 1020,1250,1650,2200,1180
     
     # Output data image block (FITS filename)
-    B) /Users/rs548/Documents/Science/PeteHurley/galfitm/{filename}-output.fits
+    B) /Users/rs548/Documents/Science/PeteHurley/galfitm/{sourcename}-output.fits
     
     # Sigma image name (CSL of <nbands> FITS filenames or "none")
     # (if an individual filename is specified as "none", then that sigma
@@ -53,14 +66,10 @@ def optimise(fitsfile):
     # sigma image will have a minimum of that value times the sky-subtracted
     # input data.
     C) none
-    #C) sig-r.fits,sig-g.fits,sig-i.fits
-    #C) none,none,none
-    #C) sig-r.fits,none,sig-i.fits         # perhaps unwise to do this in practice
-    #C) none    0.1			      # min. sigma is 10% of the data flux
-    
+ 
     # Input PSF image (CSL of <nbands> FITS filenames) 
     # and a single diffusion kernel (FITS filename, # or omitted)
-    D) psf-r.fits,psf-g.fits,psf-i.fits  #  
+    D) /Users/rs548/Documents/Science/PeteHurley/galfitm/psf-Y.fits,/Users/rs548/Documents/Science/PeteHurley/galfitm/psf-J.fits,/Users/rs548/Documents/Science/PeteHurley/galfitm/psf-H.fits,/Users/rs548/Documents/Science/PeteHurley/galfitm/psf-Ks.fits,/Users/rs548/Documents/Science/PeteHurley/galfitm/psf-NB118.fits   #  
     #D) psf-r.fits,psf-g.fits,psf-i.fits  kernel.fits
     
     # PSF fine sampling factor relative to data 
@@ -80,16 +89,16 @@ def optimise(fitsfile):
     #G) constraints_filename
     
     # Image region to fit (xmin xmax ymin ymax)
-    H) 1    93   1    93
+    H) 1    150   1    150
     
     # Size of the convolution box (x y)
     I) 100    100
     
     # Magnitude photometric zeropoint (CSL of <nbands> values)
-    J) 26.563,25.123,27.987
+    J) 30.0,30.0,30.0,30.0,30.0
     
     # Plate scale (dx dy)   [arcsec per pixel]
-    K) 0.038  0.038
+    K) 0.14997825  0.14997825
     
     # Display type (regular, curses, both)
     O) regular             
@@ -127,94 +136,37 @@ def optimise(fitsfile):
     #W) model    # or any other valid option
     W) input,model,residual    # or any comma separated list of valid options
     
-    
-    # THE OBJECT LIST BELOW can be however long or short as the complexity
-    # requires.  The user has complete freedom to mix and match the components
-    # by duplicating each object block.
-    
-    # INITIAL FITTING PARAMETERS
-    #
-    # column 1: Parameter number
-    #
-    # column 2:
-    # -- Parameter 0: the allowed functions are: sersic, nuker, expdisk
-    #    	       	  edgedisk, devauc, king, moffat, gaussian, ferrer, psf, sky
-    # -- Parameter 1-10: value of the initial parameters
-    # -- and Parameter C0: For diskiness/boxiness (<0 = disky, >0 = boxy)
-    #  	     	  By default this is a CSL of the values of the parameter
-    #  	     	  in each of the input bands.  This may be optionally indicated
-    #		  by putting the word 'band' at the end of the line (before any
-    #  	     	  comment).
-    #  	     	  Only specifying a single value with multiple input bands
-    #  	     	  assumes the same value for all bands.
-    #                 This can also optionally be specified in terms of Chebyshev
-    #	       	  coefficients by adding the word 'cheb' at the end of the line
-    #  	     	  (before any comment).
-    #	       	  In this case one should give a CSL of at most <nbands> values
-    #		  corresponding to coefficients of a Chebyshev series.
-    # 	     	  First value of the CSL specifies the parameter value at the
-    #	     	  average wavelength of the input bands.
-    #	     	  Additional values in the CSL specify the variation in that
-    #	     	  parameter value with wavelength, from linear (1st-order),
-    #	     	  quadratic (2nd-order), up to <nbands>-order (which should be
-    #	     	  equivalent to fitting the value independently for each band
-    #		  Values omitted from the end of the CSL are assumed to be zero.
-    # -- Parameter Z: Outputting image options, the options are:
-    #              	  0 = normal, i.e. subtract final model from the data to create
-    #		      the residual image
-    #	      	  1 = Leave in the model -- do not subtract from the data
-    #
-    # column 3: This may be specified in one of two ways:
-    #           An integer giving the order of the Chebyshev series , e.g.,
-    #             0 = fixed to input value(s)
-    #             1 = fit a constant offset from the input value(s)
-    #             2 = fit a linear function of wavelength
-    #             3 = fit a quadratic function of wavelength, etc.
-    #           Note that, for >2, the input values are fit by a polynomial function
-    #           of the specified order before fitting begins.
-    #           Alternatively, one may give a CSL of at most <nbands> integers
-    #           indicating whether or not that coefficient is allowed to vary
-    #           (yes = 1, no = 0).  Values omitted from the end of the CSL are
-    #           assumed to be zero.
-    #
-    # column 4: comment
-    
+       
     # Sersic function --------------------------------------------------------------
     
     # Only this first function includes multi-band examples, but the same approach
     # should work for all these functions.
     
-     0) sersic     # Object type
-     1) 300.  1    # position x [pixel]  (constant with wavelength)
-     2) 350.  1    # position y [pixel]
-     3) 20.0,21.0,22.0  3     # total magnitude in each band
-     4) 4.30,4.40,4.5   2     # R_e in each band
-     5) 5.20,5.20,5.20  1     # Sersic exponent in each band
-     9) 0.30,0.30,0.30  1     # axis ratio (b/a) in each band
-    10) 10.0            1     # position angle (PA), same value in each band
-     Z) 0                  #  Skip this model in output image?  (yes=1, no=0)
+    0) sersic     # Object type
+    1) 75.  1    # position x [pixel]  (constant with wavelength)
+    2) 75.  1    # position y [pixel]
+    3) 20.0,20.0,20.0,20.0,20.0  3     # total magnitude in each band
+    4) 5.0,5.0,5.0,5.0,5.0   2     # R_e in each band
+    5) 2.0,2.0,2.0,2.0,2.0  1     # Sersic exponent in each band
+    9) 1.0,1.0,1.0,1.0,1.0  1     # axis ratio (b/a) in each band
+    10) 0.0            1     # position angle (PA), same value in each band
+    Z) 0                  #  Skip this model in output image?  (yes=1, no=0)
     
-     0) sersic     # Object type
-     1) 300.  1    # position x [pixel]  (constant with wavelength)
-     2) 350.  1    # position y [pixel]
-     3) 20.00,0.2,0.0  1,1,1 cheb # total magnitude and coeffs of wavelength dependence
-     4) 4.30,0.1,0.0   1,1,0 cheb # R_e and coeffs of wavelength dependence
-     5) 5.20,0.0,0.0   1,0,0 cheb # Sersic exponent and coeffs of wavelength dependence
-     9) 0.30,0.0,0.0   1     cheb # axis ratio (b/a) and coeffs of wavelength dependence
-    10) 10.0           1     cheb # position angle (PA) and coeffs of wavelength dependence
-     Z) 0                  #  Skip this model in output image?  (yes=1, no=0)
+    #0) sersic     # Object type
+    #1) 300.  1    # position x [pixel]  (constant with wavelength)
+    #2) 350.  1    # position y [pixel]
+    #3) 20.00,0.2,0.0  1,1,1 cheb # total magnitude and coeffs of wavelength dependence
+    #4) 4.30,0.1,0.0   1,1,0 cheb # R_e and coeffs of wavelength dependence
+    #5) 5.20,0.0,0.0   1,0,0 cheb # Sersic exponent and coeffs of wavelength dependence
+    #9) 0.30,0.0,0.0   1     cheb # axis ratio (b/a) and coeffs of wavelength dependence
+    #10) 10.0           1     cheb # position angle (PA) and coeffs of wavelength dependence
+    #Z) 0                  #  Skip this model in output image?  (yes=1, no=0)
     
     
   
-    # PSF fit ----------------------------------------------------------------------
+          #  Skip this model in output image?  (yes=1, no=0)
     
-     0) psf                # object type
-     1) 300.       1       # position x [pixel]
-     2) 357.4      1       # position y [pixel]
-     3) 18.5       1       # total magnitude     
-     Z) 0                  #  Skip this model in output image?  (yes=1, no=0)
-    
-    # sky --------------------------------------------------------------------------
+     # sky --------------------------------------------------------------------------
     
      0) sky
      1) 0.77       0       # sky background       [ADU counts]
@@ -226,16 +178,19 @@ def optimise(fitsfile):
     
     """.format(**vars())
     
-    inputFile = open('/Users/rs548/Documents/Science/PeteHurley/galfit/' + filename + '.feedme', "w")
+    inputFile = open('/Users/rs548/Documents/Science/PeteHurley/galfitm/' 
+                     + sourcename + '.feedme', "w")
     inputFile.write(inputText)
     inputFile.close()
     
     log_file = open("a_log.txt", "a")
     
     #'-imax', '99', 
-    print('Galfit.py is about to call galfit')
+    print('Galfitm.py is about to call galfitm')
     print(inputText)
-    subprocess.call(['/usr/local/bin/galfit', '/Users/rs548/Documents/Science/PeteHurley/galfit/' + filename + '.feedme'], 
+    subprocess.call(['/Users/rs548/Documents/Code/galfitm/galfitm-1.2.1-osx', 
+                    '/Users/rs548/Documents/Science/PeteHurley/galfitm/' 
+                    + sourcename + '.feedme'], 
                     stdout=log_file)
     
     log_file.close()

@@ -15,17 +15,30 @@ from __future__ import division, print_function
 import subprocess
 #import astropy
 from astropy.io import fits
+from os import listdir
+from os import getcwd
+from os import rename
+from os import chdir
+import time
+
+trashDir = '/Users/rs548/Documents/Science/PeteHurley/TRASH/'
+#chdir(workDir + 'TRASH/')
+
+wkdir = getcwd()
+#print('at galfit import wkdir is' + wkdir)
 
 def optimise(fitsfile, folder, **kwargs):
-    print('galfit.py has been called')
+    #print('galfit.py has been called')
     filename=str(fitsfile)
+    fileRoot = filename[:-5]
+    restart = False
     method = 0
-    psf = 'PSF-g.fits'
+    psf = 'PSF-g.fits' #'PSF-g.fits' psfNOTOK.fits
     inputText = """
     ===============================================================================
     # IMAGE and GALFIT CONTROL PARAMETERS
     A) {folder}{filename}            # Input data image (FITS file)
-    B) {folder}{filename}-output.fits        # Output data image block
+    B) {folder}{fileRoot}-output.fits        # Output data image block
     C) none                # Sigma image name (made from data if blank or "none") 
     D) {folder}{psf}   #        # Input PSF image and (optional) diffusion kernel
     E) 1                   # PSF fine sampling factor relative to data 
@@ -55,20 +68,29 @@ def optimise(fitsfile, folder, **kwargs):
     
     # Object number: 1
      0) sersic                 #  object type
-     1) 75.0  75.0  1 1  #  position x, y
-     3) 20.0    1          #  Integrated magnitude	
-     4) 10.0      1          #  R_e (half-light radius)   [pix]
-     5) 2.0      1          #  Sersic index n (de Vaucouleurs n=4) 
+     1) 75.0  75.0  1 1        #  position x, y
+     3) 22.0    1              #  Integrated magnitude	
+     4) 4.0      1             #  R_e (half-light radius)   [pix]
+     5) 2.0      1             #  Sersic index n (de Vaucouleurs n=4) 
      6) 0.0000      0          #     ----- 
      7) 0.0000      0          #     ----- 
      8) 0.0000      0          #     ----- 
-     9) 1.0      1          #  axis ratio (b/a)  
-    10) 0.0    1          #  position angle (PA) [deg: Up=0, Left=90]
+     9) 1.0      1             #  axis ratio (b/a)  
+    10) 0.0    1               #  position angle (PA) [deg: Up=0, Left=90]
+     Z) 0                      #  output option (0 = resid., 1 = Don't subtract) 
+
+    # Object number: 2
+     0) expdisk                #  object type
+     1) 75.0  75.0  1 1        #  position x, y
+     3) 24.0        1          #  Integrated magnitude	
+     4) 10.0        1          #  R_s    [pix]
+     9) 0.7      1             #  axis ratio (b/a)  
+    10) 0.0    1               #  position angle (PA) [deg: Up=0, Left=90]
      Z) 0                      #  output option (0 = resid., 1 = Don't subtract) 
     
-    # Object number: 2
+    # Object number: 3
      0) sky                    #  object type
-     1) 1.3920      1          #  sky background at center of fitting region [ADUs]
+     1) 0.0001      1          #  sky background at center of fitting region [ADUs]
      2) 0.0000      0          #  dsky/dx (sky gradient in x)
      3) 0.0000      0          #  dsky/dy (sky gradient in y)
      Z) 0                      #  output option (0 = resid., 1 = Don't subtract) 
@@ -76,19 +98,36 @@ def optimise(fitsfile, folder, **kwargs):
     ================================================================================
     """.format(**vars())
     
-    inputFile = open('/Users/rs548/Documents/Science/PeteHurley/galfit/' + filename + '.feedme', "w")
+    inputFile = open('/Users/rs548/Documents/Science/PeteHurley/SDSS/' + fileRoot + '.feedme', "w")
     inputFile.write(inputText)
     inputFile.close()
     
-    log_file = open("a_log.txt", "a")
+    log_file = open('/Users/rs548/Documents/Science/PeteHurley/SDSS/' + fileRoot + '-log.txt', 'a')
     
+
+    
+    #print('at galfit run wkdir is' + wkdir)
+    if restart:
+        print('restarting with last run parameters')
+    else:
+        #print( listdir(trashDir))
+        for restartFile in listdir(trashDir):
+            if restartFile[0:7] == 'galfit.':
+                rename(trashDir + restartFile, trashDir + 'wasnotused'  + restartFile)
+                #print(trashDir + restartFile, trashDir + 'wasnotused'  + restartFile)
+                
+            
+
     #'-imax', '99', 
-    print('Galfit.py is about to call galfit')
-    print(inputText)
+    print('Galfit.py is about to call galfit on ' + filename)
+    #print(inputText)
+    t0 = time.time()
     subprocess.call(['/usr/local/bin/galfit', 
-                    '/Users/rs548/Documents/Science/PeteHurley/galfit/' 
-                    + filename + '.feedme'], 
+                    '/Users/rs548/Documents/Science/PeteHurley/SDSS/' 
+                    + fileRoot + '.feedme'], 
                     stdout=log_file)
+    trun = time.time() - t0
+    print('Galfit took ',  trun, 's to run.')
     
     log_file.close()
     

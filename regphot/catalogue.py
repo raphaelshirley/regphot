@@ -9,28 +9,38 @@ Created on Tue Dec 13 12:23:18 2016
 
 from __future__ import division, print_function
 
-import os
+from os import chdir
 from astropy.io import fits
 from astropy.wcs import WCS
 from astropy.nddata import Cutout2D
 #from astropy import units as u
 import matplotlib.pyplot as plt
 #from matplotlib.colors import LogNorm
-from getSDSS import getPlateFits
-
+from regphot.getsdss import getPlateFits
 
 #Functions I've written
 from galfit import optimise
 from galfitm import optimiseM
 
+import time
+t0 = time.time()
+
 
 #############################INPUTS############################################
 workDir = '/Users/rs548/Documents/Science/PeteHurley/'
-
+chdir(workDir + 'TRASH/')
 
 #Open FITS catalogue
 hdulist = fits.open(workDir + 
                     'cosmos-hyperleda-sdss-dr13-2massXSC-4reg-flagged_HELP.fits')
+
+
+field = 'UltraVISTA'
+runGalfit = False
+runGalfitM = False
+runUltraVISTA = False
+runSDSS = True
+
 
 #Open all the huge FITS images
 imageY = fits.open(workDir + 'data/ADP.2016-03-17T08:31:54.127.fits')
@@ -45,23 +55,18 @@ images = (('Y', imageY, 1020),
           ('Ks', imageKs, 2200),
           ('NB118', imageNB118, 1180))
 
-field = 'UltraVISTA'
-runGalfit = False
-runGalfitM = False
-runUltraVISTA = False
-runSDSS = True
-
-
 #Open Y band for coordinate transformations
 w = WCS(workDir + 'data/ADP.2016-03-17T08:31:54.127.fits')
 #############################INPUTS############################################
 nisin = 0
 nnotin = 0 
+nSDSS = 0
 
 #Go through every object, check it is in field and then do stuff with it
 #I deally this will eventually cutout an appropriate fits file and run
 #Galfit or Galfitm on it 
 for source in hdulist[1].data:
+    print('Now running on ' + source[0])
     #print(source[0])
     xpix, ypix = w.all_world2pix(source[1],source[2],0)
     #top left is 150.77177 +02.80870
@@ -111,7 +116,9 @@ for source in hdulist[1].data:
         nnotin = nnotin + 1
                 
     
+    
     if runSDSS:
+        #For a given object position go through all the SDSS bands
         for band in ('u','g','r','i','z'):
             try:
                 SDSSplate = getPlateFits((str(source[1]) + 'd ' + str(source[2]) + 'd' ), band)
@@ -120,7 +127,7 @@ for source in hdulist[1].data:
                 continue
             SDSSwcs = WCS(SDSSplate[0][0].header)
             SDSSxpix, SDSSypix = SDSSwcs.all_world2pix(source[1],source[2],0)
-            print('SDSS pixelnumbers are', SDSSxpix, SDSSypix)
+            #print('SDSS pixelnumbers are', SDSSxpix, SDSSypix)
             SDSSposition = (SDSSxpix, SDSSypix)
             SDSSsize = 150
             
@@ -136,20 +143,28 @@ for source in hdulist[1].data:
             try:
                 fits.writeto(workDir + 'SDSS/' + source[0] +'-'+ band + '.fits', 
                              Cutout2D(SDSSplate[0][0].data, SDSSposition, SDSSsize).data)
+                
             except:
-                print('Already downloaded SDSS')
+                pass
+                #print('Already downloaded SDSS so using old fits')
                 #os.remove(workDir + 'SDSS/' + source[0] +'-'+  band + '.fits')
                 #fits.writeto(workDir + 'SDSS/' + source[0] +'-'+ band + '.fits', 
                 #             Cutout2D(SDSSplate[0][0].data, SDSSposition, SDSSsize).data)
             
             if band == 'g':
                 optimise(source[0] + '-' + band + '.fits', workDir + 'SDSS/')
+                nSDSS = nSDSS + 1
         
 
-#imageY.close()
+                
+imageY.close()
 imageJ.close()
 imageH.close()
 imageKs.close()
 imageNB118.close()
 
 print('there are ', nisin, 'objects in the field, and ', nnotin, ' out of the field.')
+print('Galfit ran on ',nSDSS, ' objects')
+
+t1= time.time()
+print('Code completed in a total of ', t1-t0, ' seconds.')

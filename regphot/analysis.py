@@ -9,6 +9,7 @@ Created on Tue Jan 31 13:42:05 2017
 from astropy.io import fits
 
 import matplotlib.pyplot as plt
+from matplotlib.colors import LogNorm
 
 from os import listdir
 from os import getcwd
@@ -29,18 +30,45 @@ def printGraphs(folder):
             plt.imshow(images[1].data, cmap='gray',  interpolation='none')
             plt.title('Image')
             plt.subplot(132)
-            plt.imshow(images[2].data, cmap='gray',  interpolation='none')
+            plt.imshow(images[6].data, cmap='gray',  interpolation='none')
             plt.title('Model')
             plt.subplot(133)
-            plt.imshow(images[3].data, cmap='gray',  interpolation='none')
+            plt.imshow(images[11].data, cmap='gray',  interpolation='none')
             plt.title('Residual')
+        
             
             plt.show()
             images.close()
             numberOutputs = numberOutputs + 1
             #remove('/Users/rs548/Documents/Science/PeteHurley/SDSS/' + filename)
             
-printGraphs('/Users/rs548/Documents/Science/PeteHurley/SDSS/')
+
+
+
+def oneModel(output):
+    lognorm = True
+    image = fits.open(output)
+    fig = plt.figure()
+    fig.suptitle(output)
+            #norm=LogNorm(),
+    
+    
+    plt.imshow(image[1].data, cmap='gray',  interpolation='none',norm=LogNorm())
+    plt.title('Image')
+   
+    fig = plt.figure()
+    plt.imshow(image[2].data, cmap='gray',  interpolation='none',norm=LogNorm())
+    plt.title('Model')
+   
+    fig = plt.figure()
+    plt.imshow(image[3].data, cmap='gray',  interpolation='none',norm=LogNorm())
+    plt.title('Residual')
+            
+
+    image.close()
+
+
+
 
 def generateTables(folder):
     numberObjects = 0
@@ -56,4 +84,6 @@ def generateTables(folder):
             writer.writerow(allParams)
             
         
-
+if __name__ == '__main__':
+    #printGraphs('/Users/rs548/Documents/Science/PeteHurley/SDSS/')
+    oneModel('/Users/rs548/Documents/Science/Blended/g-output.fits')

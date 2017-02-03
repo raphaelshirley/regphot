@@ -30,14 +30,15 @@ def printGraphs(folder):
             plt.imshow(images[1].data, cmap='gray',  interpolation='none')
             plt.title('Image')
             plt.subplot(132)
-            plt.imshow(images[6].data, cmap='gray',  interpolation='none')
+            plt.imshow(images[2].data, cmap='gray',  interpolation='none')
             plt.title('Model')
             plt.subplot(133)
-            plt.imshow(images[11].data, cmap='gray',  interpolation='none')
+            plt.imshow(images[3].data, cmap='gray',  interpolation='none')
             plt.title('Residual')
         
             
             plt.show()
+            plt.close()
             images.close()
             numberOutputs = numberOutputs + 1
             #remove('/Users/rs548/Documents/Science/PeteHurley/SDSS/' + filename)
@@ -85,5 +86,5 @@ def generateTables(folder):
             
         
 if __name__ == '__main__':
-    #printGraphs('/Users/rs548/Documents/Science/PeteHurley/SDSS/')
-    oneModel('/Users/rs548/Documents/Science/Blended/g-output.fits')
+    printGraphs('/Users/rs548/Documents/Science/PeteHurley/SDSS/')
+    #oneModel('/Users/rs548/Documents/Science/Blended/g-output.fits')

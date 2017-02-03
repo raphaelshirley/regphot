@@ -16,14 +16,17 @@ from astropy.nddata import Cutout2D
 #from astropy import units as u
 import matplotlib.pyplot as plt
 #from matplotlib.colors import LogNorm
-from regphot.getsdss import getPlateFits
+import time
+t0 = time.time()
 
-#Functions I've written
+
+# MY MODULES
+#from regphot import getsdss
+from getsdss import getPlateFits
 from galfit import optimise
 from galfitm import optimiseM
 
-import time
-t0 = time.time()
+
 
 
 #############################INPUTS############################################
@@ -35,11 +38,15 @@ hdulist = fits.open(workDir +
                     'cosmos-hyperleda-sdss-dr13-2massXSC-4reg-flagged_HELP.fits')
 
 
+
+#Options
 field = 'UltraVISTA'
-runGalfit = False
+runGalfit = True
 runGalfitM = False
 runUltraVISTA = False
 runSDSS = True
+plotfigs = False
+downloadSDSS = False
 
 
 #Open all the huge FITS images
@@ -119,41 +126,68 @@ for source in hdulist[1].data:
     
     if runSDSS:
         #For a given object position go through all the SDSS bands
+        SDSSimages = []
+        #3543,4770,6231,7625,9134
+        SDSSwavelengths = {'u':3543,'g':4770,'r':6231,'i':7625,'z':9134}
         for band in ('u','g','r','i','z'):
-            try:
-                SDSSplate = getPlateFits((str(source[1]) + 'd ' + str(source[2]) + 'd' ), band)
-            except:
-                print(source[0], ' is not in SDSS')
-                continue
-            SDSSwcs = WCS(SDSSplate[0][0].header)
-            SDSSxpix, SDSSypix = SDSSwcs.all_world2pix(source[1],source[2],0)
-            #print('SDSS pixelnumbers are', SDSSxpix, SDSSypix)
-            SDSSposition = (SDSSxpix, SDSSypix)
-            SDSSsize = 150
             
-            if band == 'g':
+            if downloadSDSS:
+                try:
+                    print('downloading from astroquery SDSS')
+                    SDSSplate = getPlateFits((str(source[1]) + 'd ' + str(source[2]) + 'd' ), band)
+                    
+                except:
+                    print(source[0], ' is not in SDSS')
+                    continue
+                SDSSwcs = WCS(SDSSplate[0][0].header)
+                SDSSxpix, SDSSypix = SDSSwcs.all_world2pix(source[1],source[2],0)
+                #print('SDSS pixelnumbers are', SDSSxpix, SDSSypix)
+                SDSSposition = (SDSSxpix, SDSSypix)
+                SDSSsize = 150
+                
+                SDSSCutout = Cutout2D(SDSSplate[0][0].data, SDSSposition, SDSSsize) #WCS????
+                try:
+                    fits.writeto(workDir + 'SDSS/' + source[0] +'-'+ band + '.fits', 
+                                 SDSSCutout.data)
+                                 #Cutout2D(SDSSplate[0][0].data, SDSSposition, SDSSsize).data)                 
+                except:
+
+                    os.remove(workDir + 'SDSS/' + source[0] +'-'+  band + '.fits')
+                    fits.writeto(workDir + 'SDSS/' + source[0] +'-'+ band + '.fits', 
+                                 SDSSCutout.data)            
+            else:
+                try:                
+                    SDSSCutout = fits.open(workDir + 'SDSS/' + source[0] + '-' + band + '.fits')
+                except:
+                    print('no ', band, ' band fits cutout for ', source[0])
+                    continue
+                     
+            if band == 'g' and plotfigs:
                 #CHECK IMAGE
                 fig = plt.figure()
                 #norm=LogNorm(),
-                SDSSCutout = Cutout2D(SDSSplate[0][0].data, SDSSposition, SDSSsize)
+                
                 plt.imshow(SDSSCutout.data, cmap='gray',  interpolation='none')
                 plt.title(source[0])
                 #fig.savefig(workDir + 'output/' + source[0] + '.png')
+                plt.close()
             
-            try:
-                fits.writeto(workDir + 'SDSS/' + source[0] +'-'+ band + '.fits', 
-                             Cutout2D(SDSSplate[0][0].data, SDSSposition, SDSSsize).data)
+
                 
-            except:
-                pass
-                #print('Already downloaded SDSS so using old fits')
-                #os.remove(workDir + 'SDSS/' + source[0] +'-'+  band + '.fits')
-                #fits.writeto(workDir + 'SDSS/' + source[0] +'-'+ band + '.fits', 
-                #             Cutout2D(SDSSplate[0][0].data, SDSSposition, SDSSsize).data)
             
-            if band == 'g':
+            SDSSimages = SDSSimages + [[band,SDSSCutout,SDSSwavelengths[band] ]]
+
+            
+            if band == 'g' and runGalfit:
+                #run Galfit on g band
                 optimise(source[0] + '-' + band + '.fits', workDir + 'SDSS/')
                 nSDSS = nSDSS + 1
+                
+        #print(len(SDSSimages))
+        #runGalfitM = False
+        if runGalfitM:
+            #run GalfitM on all bands
+            optimiseM(SDSSimages,source[0])
         
 
                 
@@ -163,8 +197,9 @@ imageH.close()
 imageKs.close()
 imageNB118.close()
 
-print('there are ', nisin, 'objects in the field, and ', nnotin, ' out of the field.')
-print('Galfit ran on ',nSDSS, ' objects')
+print('Code ran on ', nisin, 'objects in UltraVISTA and ignored ', nnotin, ' out of the field.')
+print('Galfit ran on ',nSDSS, ' SDSSobjects')
+print('GalfitM ran on ????????? objects')
 
 t1= time.time()
 print('Code completed in a total of ', t1-t0, ' seconds.')

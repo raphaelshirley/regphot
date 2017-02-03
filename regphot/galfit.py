@@ -43,7 +43,7 @@ def optimise(fitsfile, folder, **kwargs):
     D) {folder}{psf}   #        # Input PSF image and (optional) diffusion kernel
     E) 1                   # PSF fine sampling factor relative to data 
     F) none                # Bad pixel mask (FITS image or ASCII coord list)
-    G) none                # File with parameter constraints (ASCII file) 
+    G) {folder}12xyequal.constraints                # File with parameter constraints (ASCII file) 
     H) 1   150   1    150   # Image region to fit (xmin xmax ymin ymax)
     I) 100    100          # Size of the convolution box (x y)
     J) 25.11              # Magnitude photometric zeropoint (UltraVISTA = 30.0) ???
@@ -70,8 +70,8 @@ def optimise(fitsfile, folder, **kwargs):
      0) sersic                 #  object type
      1) 75.0  75.0  1 1        #  position x, y
      3) 22.0    1              #  Integrated magnitude	
-     4) 4.0      1             #  R_e (half-light radius)   [pix]
-     5) 2.0      1             #  Sersic index n (de Vaucouleurs n=4) 
+     4) 2.0      1             #  R_e (half-light radius)   [pix]
+     5) 3.0      1             #  Sersic index n (de Vaucouleurs n=4) 
      6) 0.0000      0          #     ----- 
      7) 0.0000      0          #     ----- 
      8) 0.0000      0          #     ----- 
@@ -82,7 +82,7 @@ def optimise(fitsfile, folder, **kwargs):
     # Object number: 2
      0) expdisk                #  object type
      1) 75.0  75.0  1 1        #  position x, y
-     3) 24.0        1          #  Integrated magnitude	
+     3) 22.0        1          #  Integrated magnitude	
      4) 10.0        1          #  R_s    [pix]
      9) 0.7      1             #  axis ratio (b/a)  
     10) 0.0    1               #  position angle (PA) [deg: Up=0, Left=90]

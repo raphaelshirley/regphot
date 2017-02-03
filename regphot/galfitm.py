@@ -14,6 +14,8 @@ import subprocess
 
 def optimiseM(images,source):
     print('galfitm.py has been called')
+    inputDir = '/Users/rs548/Documents/Science/PeteHurley/SDSS/'
+    outputDir = '/Users/rs548/Documents/Science/PeteHurley/SDSSMOutput/'
     filenames=''
     sourcename = source
     bandlabels=''
@@ -23,7 +25,8 @@ def optimiseM(images,source):
             filenames = filenames + ','
             bandlabels = bandlabels + ','
         n = n + 1
-        filenames = (filenames + '/Users/rs548/Documents/Science/PeteHurley/galfitm/'
+
+        filenames = (filenames + inputDir
                                 + source + '-' + band[0] + '.fits')
         bandlabels = bandlabels + band[0]
 
@@ -53,10 +56,12 @@ def optimiseM(images,source):
     # Band wavelengths (CSL of values)
     # (choice of wavelength units is arbitrary, as long as consistent,
     #  but affects the resulting wavelength-dependence parameters)
-    A2) 1020,1250,1650,2200,1180
+    #Ultravista: 1020,1250,1650,2200,1180
+    #SDSS: 3543,4770,6231,7625,9134
+    A2) 3543,4770,6231,7625,9134
     
     # Output data image block (FITS filename)
-    B) /Users/rs548/Documents/Science/PeteHurley/galfitm/{sourcename}-output.fits
+    B) {outputDir}{sourcename}-output.fits
     
     # Sigma image name (CSL of <nbands> FITS filenames or "none")
     # (if an individual filename is specified as "none", then that sigma
@@ -69,7 +74,7 @@ def optimiseM(images,source):
  
     # Input PSF image (CSL of <nbands> FITS filenames) 
     # and a single diffusion kernel (FITS filename, # or omitted)
-    D) /Users/rs548/Documents/Science/PeteHurley/galfitm/psf-Y.fits,/Users/rs548/Documents/Science/PeteHurley/galfitm/psf-J.fits,/Users/rs548/Documents/Science/PeteHurley/galfitm/psf-H.fits,/Users/rs548/Documents/Science/PeteHurley/galfitm/psf-Ks.fits,/Users/rs548/Documents/Science/PeteHurley/galfitm/psf-NB118.fits   #  
+    D) {inputDir}PSF-u.fits,{inputDir}PSF-g.fits,{inputDir}PSF-r.fits,{inputDir}PSF-i.fits,{inputDir}PSF-z.fits
     #D) psf-r.fits,psf-g.fits,psf-i.fits  kernel.fits
     
     # PSF fine sampling factor relative to data 
@@ -85,8 +90,8 @@ def optimiseM(images,source):
     #F) mask-r.fits,none,mask-i.fits
     
     # File with parameter constraints (ASCII file)
-    G) none              
-    #G) constraints_filename
+    G) none # {inputDir}bulgedisklocation.constraints              
+    #G) constraints_filename 12xyequal.constraints
     
     # Image region to fit (xmin xmax ymin ymax)
     H) 1    150   1    150
@@ -95,10 +100,14 @@ def optimiseM(images,source):
     I) 100    100
     
     # Magnitude photometric zeropoint (CSL of <nbands> values)
-    J) 30.0,30.0,30.0,30.0,30.0
+    #UltraVISTA from fits header 30.0,30.0,30.0,30.0,30.0
+    # SDSS from http://classic.sdss.org/dr7/algorithms/fluxcal.html
+    J) 24.63,25.11,24.80,24.36,22.83
     
     # Plate scale (dx dy)   [arcsec per pixel]
-    K) 0.14997825  0.14997825
+    #UltraVISTA 0.14997825  0.14997825
+    #SDSS 0.396127  0.396127 
+    K) 0.396127  0.396127 
     
     # Display type (regular, curses, both)
     O) regular             
@@ -169,7 +178,7 @@ def optimiseM(images,source):
      # sky --------------------------------------------------------------------------
     
      0) sky
-     1) 0.77       0       # sky background       [ADU counts]
+     1) 0.005       0       # sky background       [ADU counts]
      2) 0.000      0       # dsky/dx (sky gradient in x) 
      3) 0.000      0       # dsky/dy (sky gradient in y) 
      Z) 0                  #  Skip this model in output image?  (yes=1, no=0)
@@ -178,18 +187,18 @@ def optimiseM(images,source):
     
     """.format(**vars())
     
-    inputFile = open('/Users/rs548/Documents/Science/PeteHurley/galfitm/' 
+    inputFile = open(outputDir 
                      + sourcename + '.feedme', "w")
     inputFile.write(inputText)
     inputFile.close()
     
-    log_file = open("a_log.txt", "a")
+    log_file = open(outputDir + sourcename + "-log.txt", "a")
     
     #'-imax', '99', 
     print('Galfitm.py is about to call galfitm')
     print(inputText)
     subprocess.call(['/Users/rs548/Documents/Code/galfitm/galfitm-1.2.1-osx', 
-                    '/Users/rs548/Documents/Science/PeteHurley/galfitm/' 
+                    outputDir 
                     + sourcename + '.feedme'], 
                     stdout=log_file)
     

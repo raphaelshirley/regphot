@@ -10,6 +10,7 @@ Created on Tue Dec 13 12:23:18 2016
 from __future__ import division, print_function
 
 from os import chdir
+from os import remove
 from astropy.io import fits
 from astropy.wcs import WCS
 from astropy.nddata import Cutout2D
@@ -41,8 +42,8 @@ hdulist = fits.open(workDir +
 
 #Options
 field = 'UltraVISTA'
-runGalfit = True
-runGalfitM = False
+runGalfit = False
+runGalfitM = True
 runUltraVISTA = False
 runSDSS = True
 plotfigs = False
@@ -68,6 +69,7 @@ w = WCS(workDir + 'data/ADP.2016-03-17T08:31:54.127.fits')
 nisin = 0
 nnotin = 0 
 nSDSS = 0
+nGalfitM = 0
 
 #Go through every object, check it is in field and then do stuff with it
 #I deally this will eventually cutout an appropriate fits file and run
@@ -75,7 +77,7 @@ nSDSS = 0
 for source in hdulist[1].data:
     print('Now running on ' + source[0])
     #print(source[0])
-    xpix, ypix = w.all_world2pix(source[1],source[2],0)
+    xpix, ypix = w.all_world2pix(source['ra_sdss'],source['dec_sdss'],0)
     #top left is 150.77177 +02.80870
     #bottom right is 149.29941 +01.59448
     dimension = 150
@@ -83,11 +85,11 @@ for source in hdulist[1].data:
     position = (xpix , ypix )
     #Should replace this bit with MOC test
     if (runUltraVISTA
-        and source[1] <= 150.77177 
-        and source[1] >= 149.29941 
-        and source[2] <= 2.80870 
-        and source[2] >= 1.59448):
-        print(source[0], ' at', source[1],source[2], 'is in ', field)
+        and source['ra_sdss'] <= 150.77177 
+        and source['ra_sdss'] >= 149.29941 
+        and source['dec_sdss'] <= 2.80870 
+        and source['dec_sdss'] >= 1.59448):
+        print(source[0], ' at', source['ra_sdss'],source['dec_sdss'], 'is in ', field)
         nisin = nisin + 1
         cutout = Cutout2D(imageY[0].data, position, size)
 
@@ -99,7 +101,7 @@ for source in hdulist[1].data:
         try:
             fits.writeto(workDir + 'galfit/' + source[0] + '.fits', cutout.data)
         except:
-            os.remove(workDir + 'galfit/' + source[0] + '.fits')
+            remove(workDir + 'galfit/' + source[0] + '.fits')
             fits.writeto(workDir + 'galfit/' + source[0] + '.fits', cutout.data)  
 
         for band in images:
@@ -107,7 +109,7 @@ for source in hdulist[1].data:
                 fits.writeto(workDir + 'galfitm/' + source[0] +'-'+ band[0] + '.fits', 
                              Cutout2D(band[1][0].data, position, size).data)
             except:
-                os.remove(workDir + 'galfitm/' + source[0] +'-'+  band[0] + '.fits')
+                remove(workDir + 'galfitm/' + source[0] +'-'+  band[0] + '.fits')
                 fits.writeto(workDir + 'galfitm/' + source[0] +'-'+  band[0] + '.fits', 
                              Cutout2D(band[1][0].data, position, size).data) 
                 
@@ -134,13 +136,13 @@ for source in hdulist[1].data:
             if downloadSDSS:
                 try:
                     print('downloading from astroquery SDSS')
-                    SDSSplate = getPlateFits((str(source[1]) + 'd ' + str(source[2]) + 'd' ), band)
+                    SDSSplate = getPlateFits((str(source['ra_sdss']) + 'd ' + str(source['dec_sdss']) + 'd' ), band)
                     
                 except:
                     print(source[0], ' is not in SDSS')
                     continue
                 SDSSwcs = WCS(SDSSplate[0][0].header)
-                SDSSxpix, SDSSypix = SDSSwcs.all_world2pix(source[1],source[2],0)
+                SDSSxpix, SDSSypix = SDSSwcs.all_world2pix(source['ra_sdss'],source['dec_sdss'],0)
                 #print('SDSS pixelnumbers are', SDSSxpix, SDSSypix)
                 SDSSposition = (SDSSxpix, SDSSypix)
                 SDSSsize = 150
@@ -152,7 +154,7 @@ for source in hdulist[1].data:
                                  #Cutout2D(SDSSplate[0][0].data, SDSSposition, SDSSsize).data)                 
                 except:
 
-                    os.remove(workDir + 'SDSS/' + source[0] +'-'+  band + '.fits')
+                    remove(workDir + 'SDSS/' + source[0] +'-'+  band + '.fits')
                     fits.writeto(workDir + 'SDSS/' + source[0] +'-'+ band + '.fits', 
                                  SDSSCutout.data)            
             else:
@@ -178,9 +180,11 @@ for source in hdulist[1].data:
             SDSSimages = SDSSimages + [[band,SDSSCutout,SDSSwavelengths[band] ]]
 
             
-            if band == 'g' and runGalfit:
+            if band == 'r' and runGalfit:
                 #run Galfit on g band
-                optimise(source[0] + '-' + band + '.fits', workDir + 'SDSS/')
+                optimise(source[0] + '-' + band + '.fits', workDir + 'SDSS/', source)
+                
+            if band =='r':
                 nSDSS = nSDSS + 1
                 
         #print(len(SDSSimages))
@@ -188,6 +192,7 @@ for source in hdulist[1].data:
         if runGalfitM:
             #run GalfitM on all bands
             optimiseM(SDSSimages,source[0])
+            nGalfitM = nGalfitM + 1
         
 
                 
@@ -199,7 +204,7 @@ imageNB118.close()
 
 print('Code ran on ', nisin, 'objects in UltraVISTA and ignored ', nnotin, ' out of the field.')
 print('Galfit ran on ',nSDSS, ' SDSSobjects')
-print('GalfitM ran on ????????? objects')
+print('GalfitM ran on ',nGalfitM,' objects')
 
 t1= time.time()
-print('Code completed in a total of ', t1-t0, ' seconds.')
+print('Code completed in a total of ', round((t1-t0)/60,2), ' minutes.')

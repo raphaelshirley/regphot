@@ -9,13 +9,14 @@ Created on Wed Dec 14 16:21:46 2016
 from __future__ import division, print_function
 
 import subprocess
+import time
 #import astropy
 #from astropy.io import fits
 
 def optimiseM(images,source):
     print('galfitm.py has been called')
     inputDir = '/Users/rs548/Documents/Science/PeteHurley/SDSS/'
-    outputDir = '/Users/rs548/Documents/Science/PeteHurley/SDSSMOutput/'
+    outputDir = '/Users/rs548/Documents/Science/PeteHurley/SM/'
     filenames=''
     sourcename = source
     bandlabels=''
@@ -74,8 +75,8 @@ def optimiseM(images,source):
  
     # Input PSF image (CSL of <nbands> FITS filenames) 
     # and a single diffusion kernel (FITS filename, # or omitted)
-    D) {inputDir}PSF-u.fits,{inputDir}PSF-g.fits,{inputDir}PSF-r.fits,{inputDir}PSF-i.fits,{inputDir}PSF-z.fits
-    #D) psf-r.fits,psf-g.fits,psf-i.fits  kernel.fits
+    #D) {inputDir}PSF-u.fits,{inputDir}PSF-g.fits,{inputDir}PSF-r.fits,{inputDir}PSF-i.fits,{inputDir}PSF-z.fits
+    D) none,none,none,none,none
     
     # PSF fine sampling factor relative to data 
     E) 1                   
@@ -154,8 +155,8 @@ def optimiseM(images,source):
     0) sersic     # Object type
     1) 75.  1    # position x [pixel]  (constant with wavelength)
     2) 75.  1    # position y [pixel]
-    3) 20.0,20.0,20.0,20.0,20.0  3     # total magnitude in each band
-    4) 5.0,5.0,5.0,5.0,5.0   2     # R_e in each band
+    3) 20.0,20.0,20.0,20.0,20.0  5     # total magnitude in each band
+    4) 5.0,5.0,5.0,5.0,5.0   1     # R_e in each band
     5) 2.0,2.0,2.0,2.0,2.0  1     # Sersic exponent in each band
     9) 1.0,1.0,1.0,1.0,1.0  1     # axis ratio (b/a) in each band
     10) 0.0            1     # position angle (PA), same value in each band
@@ -178,7 +179,7 @@ def optimiseM(images,source):
      # sky --------------------------------------------------------------------------
     
      0) sky
-     1) 0.005       0       # sky background       [ADU counts]
+     1) 0.005       1       # sky background       [ADU counts]
      2) 0.000      0       # dsky/dx (sky gradient in x) 
      3) 0.000      0       # dsky/dy (sky gradient in y) 
      Z) 0                  #  Skip this model in output image?  (yes=1, no=0)
@@ -196,11 +197,13 @@ def optimiseM(images,source):
     
     #'-imax', '99', 
     print('Galfitm.py is about to call galfitm')
-    print(inputText)
+    #print(inputText)
+    t0 = time.time()
     subprocess.call(['/Users/rs548/Documents/Code/galfitm/galfitm-1.2.1-osx', 
                     outputDir 
                     + sourcename + '.feedme'], 
                     stdout=log_file)
+    print('GalfitM ran in ',time.time() - t0,'s')
     
     log_file.close()
     

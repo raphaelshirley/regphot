@@ -14,7 +14,7 @@ import time
 #from astropy.io import fits
 
 def optimiseM(images,source):
-    print('galfitm.py has been called')
+    #print('galfitm.py has been called')
     inputDir = '/Users/rs548/Documents/Science/PeteHurley/SDSS/'
     outputDir = '/Users/rs548/Documents/Science/PeteHurley/SM/'
     filenames=''
@@ -58,8 +58,8 @@ def optimiseM(images,source):
     # (choice of wavelength units is arbitrary, as long as consistent,
     #  but affects the resulting wavelength-dependence parameters)
     #Ultravista: 1020,1250,1650,2200,1180
-    #SDSS: 3543,4770,6231,7625,9134
-    A2) 3543,4770,6231,7625,9134
+    #SDSS: 354.3,477.0,623.1,762.5,913.4
+    A2) 354.3,477.0,623.1,762.5,913.4
     
     # Output data image block (FITS filename)
     B) {outputDir}{sourcename}-output.fits
@@ -127,8 +127,8 @@ def optimiseM(images,source):
     		    # where i is the iteration number.
     
     # MultiNest
-    V) 0     # Use standard Levenburg-Marquardt algorithm
-    #V) 1	 # Use MultiNest sampling algorithm (experimental and slow!)
+    #V) 0     # Use standard Levenburg-Marquardt algorithm
+    V) 1	 # Use MultiNest sampling algorithm (experimental and slow!)
     #V) 1 0 500 0.8 0.5 100000   # Customise MultiNest options:
                                 # ceff,nlive,efr,tol,maxiter
     
@@ -196,14 +196,14 @@ def optimiseM(images,source):
     log_file = open(outputDir + sourcename + "-log.txt", "a")
     
     #'-imax', '99', 
-    print('Galfitm.py is about to call galfitm')
+    #print('Galfitm.py is about to call galfitm')
     #print(inputText)
     t0 = time.time()
     subprocess.call(['/Users/rs548/Documents/Code/galfitm/galfitm-1.2.1-osx', 
                     outputDir 
                     + sourcename + '.feedme'], 
                     stdout=log_file)
-    print('GalfitM ran in ',time.time() - t0,'s')
+    print('GalfitM ran in ',round(time.time() - t0,1),'s')
     
     log_file.close()
     

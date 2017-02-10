@@ -125,17 +125,21 @@ def printAllBandGraphs(folder):
             numBands = ((len(images) -1)/3) -1
             print(numBands)
             
-            fig,axarr = plt.subplots(nrows=numBands, ncols=3, sharex=True)
+            fig,axarr = plt.subplots(nrows=numBands, ncols=3, sharex=True, 
+                                     sharey=True, figsize=(10,10))
             plt.suptitle(filename)
             #norm=LogNorm(),
             axarr[0,0].set_title('Image')
             axarr[0,1].set_title('Model')
             axarr[0,2].set_title('Residual')
             
-            for band in range(1,numBands):
-                fig[band,0].imshow(images[band].data, cmap='gray',  interpolation='none')
-                fig[band,1].imshow(images[band + numBands].data, cmap='gray',  interpolation='none')
-                fig[band,2].imshow(images[band + 2*numBands].data, cmap='gray',  interpolation='none')
+            for band in range(0,numBands):
+                axarr[band,0].imshow(images[band].data, 
+                     cmap='gray',  interpolation='none')
+                axarr[band,1].imshow(images[band + numBands].data, 
+                     cmap='gray',  interpolation='none')
+                axarr[band,2].imshow(images[band + 2*numBands].data, 
+                     cmap='gray',  interpolation='none')
 
         
             

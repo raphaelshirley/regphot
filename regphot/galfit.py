@@ -31,6 +31,15 @@ wkdir = getcwd()
 
 def optimise(fitsfile, folder, source, **kwargs):
     #print('galfit.py has been called')
+    field = 'SDSS'
+    if field == 'UltraVISTA':
+        plateScale = 0.14997825
+        magphotzero = 30.0
+        
+    elif field == 'SDSS':
+        plateScale = 0.396127
+        magphotzero = 25.11 #g band
+        
     filename=str(fitsfile)
     fileRoot = filename[:-5]
     restart = False
@@ -51,8 +60,8 @@ def optimise(fitsfile, folder, source, **kwargs):
     G) {folder}12xyequal.constraints                # File with parameter constraints (ASCII file) 
     H) 1   150   1    150   # Image region to fit (xmin xmax ymin ymax)
     I) 100    100          # Size of the convolution box (x y)
-    J) 25.11              # Magnitude photometric zeropoint (UltraVISTA = 30.0) ???
-    K) 0.396127  0.396127        # Plate scale (dx dy)    [arcsec per pixel] (UltraVISTA= 0.14997825  0.14997825 )
+    J) {magphotzero}              # Magnitude photometric zeropoint (UltraVISTA = 30.0) ???
+    K) {plateScale} {plateScale}        # Plate scale (dx dy)    [arcsec per pixel] (UltraVISTA= 0.14997825  0.14997825 )
     O) regular             # Display type (regular, curses, both)
     P) {method}                   # Choose: 0=optimize, 1=model, 2=imgblock, 3=subcomps
 
@@ -77,7 +86,7 @@ def optimise(fitsfile, folder, source, **kwargs):
      1) 75.0  75.0  1 1        #  position x, y
      3) 22.0    1              #  Integrated magnitude	
      4) 1      1             #  R_e (half-light radius)   [pix]
-     5) 4.0      1             #  Sersic index n (de Vaucouleurs n=4) 
+     5) 4.0         0             #  Sersic index n (de Vaucouleurs n=4) 
      6) 0.0000      0          #     ----- 
      7) 0.0000      0          #     ----- 
      8) 0.0000      0          #     ----- 

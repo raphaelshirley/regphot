@@ -10,3 +10,6 @@ calculate chisq and optimse using standard optimisation.
 """
 
 import pyprofit
+
+def optimise():
+    

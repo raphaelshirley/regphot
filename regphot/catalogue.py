@@ -5,8 +5,6 @@ Created on Tue Dec 13 12:23:18 2016
 
 @author: rs548
 """
-
-
 from __future__ import division, print_function
 
 from os import chdir
@@ -47,28 +45,28 @@ hdulist = fits.open(workDir +
 runUltraVISTA = True
 runSDSS = False
 
-runGalfit = False
+runGalfit = True
 runGalfitM = False
 
-plotfigs = True
+plotfigs = False
 downloadSDSS = False
-makeUVcutouts = True
+makeUVcutouts = False
 
-dimension = 150
+dimension = 150   #Size of cutout to fit (pixels)
 
 
-#Open all the UltraVISTA FITS images
-UVYfits = 'data/ADP.2016-03-17T08:31:54.127.fits'
-UVJfits = 'data/ADP.2016-03-17T08:31:54.147.fits'
-UVHfits = 'data/ADP.2016-03-17T08:31:54.060.fits'
-UVKsfits = 'data/ADP.2016-03-17T08:31:54.113.fits'
-UVNB118fits = 'data/ADP.2016-03-17T08:31:54.107.fits'
+#Location of the UltraVISTA FITS images
+UVYfits = '/Volumes/Raph500/data/ADP.2016-03-17T08-31-54.127.fits'
+UVJfits = '/Volumes/Raph500/data/ADP.2016-03-17T08-31-54.147.fits'
+UVHfits = '/Volumes/Raph500/data/ADP.2016-03-17T08-31-54.060.fits'
+UVKsfits = '/Volumes/Raph500/data/ADP.2016-03-17T08-31-54.113.fits'
+UVNB118fits = '/Volumes/Raph500/data/ADP.2016-03-17T08-31-54.107.fits'
 
-UVfits = (('Y', workDir + UVYfits, 1020),
-          ('J', workDir + UVJfits, 1250),
-          ('H', workDir + UVHfits, 1650),
-          ('Ks', workDir + UVKsfits, 2200),
-          ('NB118', workDir + UVNB118fits, 1180))
+UVfits = (('Y', UVYfits, 1020),
+          ('J', UVJfits, 1250),
+          ('H', UVHfits, 1650),
+          ('Ks', UVKsfits, 2200),
+          ('NB118', UVNB118fits, 1180))
 
 
 
@@ -88,7 +86,7 @@ for source in hdulist[1].data:
     n += 1
     print('Now running on object number ',n,': ', source[0])
     #print(source[0])
-
+    
     #Should replace this bit with MOC test
     if (runUltraVISTA
         and source['ra_sdss'] <= 150.77177 
@@ -99,7 +97,7 @@ for source in hdulist[1].data:
         nisin = nisin + 1
 
         #Open Y band for coordinate transformations
-        UVwcs = WCS(workDir + 'data/ADP.2016-03-17T08:31:54.127.fits')
+        UVwcs = WCS(UVfits[0][1])
         UVxpix, UVypix = UVwcs.all_world2pix(source['ra_sdss'],source['dec_sdss'],0)
         #top left is 150.77177 +02.80870
         #bottom right is 149.29941 +01.59448
@@ -144,7 +142,7 @@ for source in hdulist[1].data:
                 except:
                     print('No UltraVISTA fits cutout for ',source[0])
                  
-                UVimages = UVimages +[band[0],UVCutoutFits,band[2]]
+                UVimages = UVimages +[[band[0],UVCutoutFits,band[2]]]
                 
         if plotfigs:
             fig = plt.figure()
@@ -155,11 +153,12 @@ for source in hdulist[1].data:
             plt.close('all')                    
 
             
-
+        galfitBand = 'Y'                
         if runGalfit:
-            optimise(source[0] + '-' + band + '.fits', workDir + UVfolder, source)
+            optimise(source[0] + '-' + galfitBand + '.fits', workDir + UVfolder,
+                     source, field='UltraVISTA')
         if runGalfitM:
-            optimiseM(UVimages,source[0])
+            optimiseM(UVimages,source[0],field='UltraVISTA')
     else:
         #print(source[0], 'is NOT in ', field)
         nnotin = nnotin + 1
@@ -266,12 +265,7 @@ for source in hdulist[1].data:
         
         print('Total for ', source[0],' was ',round(time.time()-objectt0,1),' s')
                 
-if runUltraVISTA:
-    imageY.close()
-    imageJ.close()
-    imageH.close()
-    imageKs.close()
-    imageNB118.close()
+
 
 print('Code ran on ', nisin, 'objects in UltraVISTA and ignored ', nnotin, ' out of the field.')
 print('Galfit ran on ',nSDSS, ' SDSS objects')

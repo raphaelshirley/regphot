@@ -117,6 +117,9 @@ def generateTables(folder):
                          output[1]['R_e']]
             writer.writerow(allParams)
             
+            
+            
+            
 def printAllBandGraphs(folder):
     numberOutputs = 0
     for filename in listdir(folder):
@@ -152,7 +155,8 @@ def printAllBandGraphs(folder):
     plt.close('all')
         
 if __name__ == '__main__':
-    printAllBandGraphs('/Users/rs548/Documents/Science/PeteHurley/SM/')
+    printGraphs('/Users/rs548/Documents/Science/PeteHurley/UVG/')
+    #printAllBandGraphs('/Users/rs548/Documents/Science/PeteHurley/UVM/')
     #print5bandGraphs('/Users/rs548/Documents/Science/PeteHurley/SM/',3)
     #oneModel('/Users/rs548/Documents/Science/Blended/g-output.fits')
     #generateTables('/Users/rs548/Documents/Science/PeteHurley/SM/')

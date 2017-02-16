@@ -29,35 +29,51 @@ trashDir = '/Users/rs548/Documents/Science/PeteHurley/TRASH/'
 wkdir = getcwd()
 #print('at galfit import wkdir is' + wkdir)
 
-def optimise(fitsfile, folder, source, **kwargs):
+def optimise(fitsfile, folder, source, field=None,**kwargs):
     #print('galfit.py has been called')
-    field = 'SDSS'
+    if field == None:
+        print('no field assigned for Galfit run, assuming SDSS')
+        field = 'SDSS'
+    
+    #field = 'SDSS'
     if field == 'UltraVISTA':
-        plateScale = 0.14997825
-        magphotzero = 30.0
+        plateScale = '0.14997825'
+        magphotzero = '30.0'
+        inputDir = '/Users/rs548/Documents/Science/PeteHurley/UV/'
+        outputDir = '/Users/rs548/Documents/Science/PeteHurley/UVG/'
+
         
     elif field == 'SDSS':
-        plateScale = 0.396127
-        magphotzero = 25.11 #g band
+        plateScale = '0.396127'
+        # SDSS from http://classic.sdss.org/dr7/algorithms/fluxcal.html
+        #magphotzero = 24.63 #u band 
+        magphotzero = '25.11' #g band
+        #magphotzero = 24.80 #r band
+        #magphotzero = 24.36 #i band
+        #magphotzero = 22.83 #z band
+        inputDir = '/Users/rs548/Documents/Science/PeteHurley/SDSS/'
+        outputDir = '/Users/rs548/Documents/Science/PeteHurley/SG/' 
+
+
         
     filename=str(fitsfile)
     fileRoot = filename[:-5]
     restart = False
-    platescale = 0.396127 #SDSS 0.396127
-    rGuess = source['expRad_r_sdss'] / platescale
+    
+    rGuess = source['expRad_r_sdss'] / float(plateScale)
     axisRatioGuess = source['expAB_r_sdss']
     method = 0
-    psf = 'PSF-g.fits' #'PSF-g.fits' psfNOTOK.fits
+    psf = 'none' #folder + 'PSF-g.fits' #'PSF-g.fits' psfNOTOK.fits
     inputText = """
     ===============================================================================
     # IMAGE and GALFIT CONTROL PARAMETERS
     A) {folder}{filename}            # Input data image (FITS file)
-    B) {folder}{fileRoot}-output.fits        # Output data image block
+    B) {outputDir}{fileRoot}-output.fits        # Output data image block
     C) none                # Sigma image name (made from data if blank or "none") 
-    D) {folder}{psf}   #        # Input PSF image and (optional) diffusion kernel
+    D) {psf}   #        # Input PSF image and (optional) diffusion kernel
     E) 1                   # PSF fine sampling factor relative to data 
     F) none                # Bad pixel mask (FITS image or ASCII coord list)
-    G) {folder}12xyequal.constraints                # File with parameter constraints (ASCII file) 
+    G) /Users/rs548/Documents/Science/PeteHurley/12xyequal.constraints                # File with parameter constraints (ASCII file) 
     H) 1   150   1    150   # Image region to fit (xmin xmax ymin ymax)
     I) 100    100          # Size of the convolution box (x y)
     J) {magphotzero}              # Magnitude photometric zeropoint (UltraVISTA = 30.0) ???
@@ -84,9 +100,9 @@ def optimise(fitsfile, folder, source, **kwargs):
     # Object number: 1
      0) sersic                 #  object type
      1) 75.0  75.0  1 1        #  position x, y
-     3) 22.0    1              #  Integrated magnitude	
-     4) 1      1             #  R_e (half-light radius)   [pix]
-     5) 4.0         0             #  Sersic index n (de Vaucouleurs n=4) 
+     3) 20.0    1              #  Integrated magnitude	
+     4) 4      1             #  R_e (half-light radius)   [pix]
+     5) 4.0         1             #  Sersic index n (de Vaucouleurs n=4) 
      6) 0.0000      0          #     ----- 
      7) 0.0000      0          #     ----- 
      8) 0.0000      0          #     ----- 
@@ -97,7 +113,7 @@ def optimise(fitsfile, folder, source, **kwargs):
     # Object number: 2
      0) expdisk                #  object type
      1) 75.0  75.0  1 1        #  position x, y
-     3) 22.0        1          #  Integrated magnitude	
+     3) 17.0        1          #  Integrated magnitude	
      4) {rGuess}        1          #  R_s    [pix]
      9) {axisRatioGuess}      1             #  axis ratio (b/a)  
     10) 0.0    1               #  position angle (PA) [deg: Up=0, Left=90]
@@ -105,7 +121,7 @@ def optimise(fitsfile, folder, source, **kwargs):
     
     # Object number: 3
      0) sky                    #  object type
-     1) 0.0001      1          #  sky background at center of fitting region [ADUs]
+     1) 0.001      1          #  sky background at center of fitting region [ADUs]
      2) 0.0000      0          #  dsky/dx (sky gradient in x)
      3) 0.0000      0          #  dsky/dy (sky gradient in y)
      Z) 0                      #  output option (0 = resid., 1 = Don't subtract) 
@@ -113,11 +129,11 @@ def optimise(fitsfile, folder, source, **kwargs):
     ================================================================================
     """.format(**vars())
     
-    inputFile = open('/Users/rs548/Documents/Science/PeteHurley/SDSS/' + fileRoot + '.feedme', "w")
+    inputFile = open(outputDir + fileRoot + '.feedme', "w")
     inputFile.write(inputText)
     inputFile.close()
     
-    log_file = open('/Users/rs548/Documents/Science/PeteHurley/SDSS/' + fileRoot + '-log.txt', 'a')
+    log_file = open(outputDir + fileRoot + '-log.txt', 'a')
     
 
     
@@ -138,11 +154,11 @@ def optimise(fitsfile, folder, source, **kwargs):
     #print(inputText)
     t0 = time.time()
     subprocess.call(['/usr/local/bin/galfit', 
-                    '/Users/rs548/Documents/Science/PeteHurley/SDSS/' 
+                    outputDir 
                     + fileRoot + '.feedme'], 
                     stdout=log_file)
     trun = time.time() - t0
-    print('Galfit took ',  trun, 's to run.')
+    print('Galfit took ',  round(trun,1), 's to run.')
     
     log_file.close()
     

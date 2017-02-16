@@ -13,23 +13,45 @@ import time
 #import astropy
 #from astropy.io import fits
 
-def optimiseM(images,source):
+def optimiseM(images,source,field = None):
     #print('galfitm.py has been called')
-    inputDir = '/Users/rs548/Documents/Science/PeteHurley/SDSS/'
-    outputDir = '/Users/rs548/Documents/Science/PeteHurley/SM/'
+    if field == None:
+        print('no field assigned for Galfit M run, assuming SDSS')
+        field = 'SDSS'
+    
+    #field = 'SDSS'
+    if field == 'UltraVISTA':
+        plateScale = '0.14997825'
+        magphotzero = '30.0,30.0,30.0,30.0,30.0'
+        inputDir = '/Users/rs548/Documents/Science/PeteHurley/UV/'
+        outputDir = '/Users/rs548/Documents/Science/PeteHurley/UVM/'
+
+        
+    elif field == 'SDSS':
+        plateScale = '0.396127'
+        # SDSS from http://classic.sdss.org/dr7/algorithms/fluxcal.html
+        magphotzero = '24.63,25.11,24.80,24.36,22.83'
+        inputDir = '/Users/rs548/Documents/Science/PeteHurley/SDSS/'
+        outputDir = '/Users/rs548/Documents/Science/PeteHurley/SM/'  
+
+
+    
     filenames=''
     sourcename = source
     bandlabels=''
+    bandwavelengths = ''
     n=0
     for band in images:
         if not n == 0:
             filenames = filenames + ','
             bandlabels = bandlabels + ','
+            bandwavelengths = bandwavelengths + ','
         n = n + 1
 
         filenames = (filenames + inputDir
                                 + source + '-' + band[0] + '.fits')
         bandlabels = bandlabels + band[0]
+        bandwavelengths = bandwavelengths + str(band[2])
 
 
     method = 0
@@ -59,7 +81,7 @@ def optimiseM(images,source):
     #  but affects the resulting wavelength-dependence parameters)
     #Ultravista: 1020,1250,1650,2200,1180
     #SDSS: 354.3,477.0,623.1,762.5,913.4
-    A2) 354.3,477.0,623.1,762.5,913.4
+    A2) {bandwavelengths}
     
     # Output data image block (FITS filename)
     B) {outputDir}{sourcename}-output.fits
@@ -103,7 +125,7 @@ def optimiseM(images,source):
     # Magnitude photometric zeropoint (CSL of <nbands> values)
     #UltraVISTA from fits header 30.0,30.0,30.0,30.0,30.0
     # SDSS from http://classic.sdss.org/dr7/algorithms/fluxcal.html
-    J) 24.63,25.11,24.80,24.36,22.83
+    J) {magphotzero}
     
     # Plate scale (dx dy)   [arcsec per pixel]
     #UltraVISTA 0.14997825  0.14997825
@@ -127,8 +149,8 @@ def optimiseM(images,source):
     		    # where i is the iteration number.
     
     # MultiNest
-    #V) 0     # Use standard Levenburg-Marquardt algorithm
-    V) 1	 # Use MultiNest sampling algorithm (experimental and slow!)
+    V) 0     # Use standard Levenburg-Marquardt algorithm
+    #V) 1	 # Use MultiNest sampling algorithm (experimental and slow!)
     #V) 1 0 500 0.8 0.5 100000   # Customise MultiNest options:
                                 # ceff,nlive,efr,tol,maxiter
     
@@ -155,7 +177,7 @@ def optimiseM(images,source):
     0) sersic     # Object type
     1) 75.  1    # position x [pixel]  (constant with wavelength)
     2) 75.  1    # position y [pixel]
-    3) 20.0,20.0,20.0,20.0,20.0  5     # total magnitude in each band
+    3) 17.0,17.0,17.0,17.0,17.0  4     # total magnitude in each band
     4) 5.0,5.0,5.0,5.0,5.0   1     # R_e in each band
     5) 2.0,2.0,2.0,2.0,2.0  1     # Sersic exponent in each band
     9) 1.0,1.0,1.0,1.0,1.0  1     # axis ratio (b/a) in each band

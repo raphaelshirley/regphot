@@ -98,24 +98,28 @@ def oneModel(output):
     image.close()
 
 
+        
 
 
-def generateTables(folder):
+def generateTables(folder,bandnames=['u','g','r','i','z']):
     numberObjects = 0
     writer = csv.writer(open( folder + 'out.csv', 'wb'))
-    headings = ['CHISQ',
+    paramnames = ['OBJID',
+                'CHISQ',
                 'RA',
                 'DEC',
                 'R_e']
-    writer.writerow(headings)
+    writer.writerow(paramnames)
     for filename in listdir(folder):
         if filename[-11:] == 'output.fits':
             output = fits.open(folder + filename)
-            allParams = [output[1]['CHISQ'],
-                         output[1]['RA'],
-                         output[1]['DEC'],
-                         output[1]['R_e']]
-            writer.writerow(allParams)
+            numBands = ((len(output) -1)/3) -1
+            for band in range(0,numBands):
+                allbandparams = []
+                for param in paramnames:                       
+                    allbandparams += [output[band+numBands].header[param]]
+                writer.writerow(allbandparams)
+    return writer
             
             
             
@@ -155,8 +159,8 @@ def printAllBandGraphs(folder):
     plt.close('all')
         
 if __name__ == '__main__':
-    printGraphs('/Users/rs548/Documents/Science/PeteHurley/UVG/')
+    #printGraphs('/Users/rs548/Documents/Science/PeteHurley/UVG/')
     #printAllBandGraphs('/Users/rs548/Documents/Science/PeteHurley/UVM/')
     #print5bandGraphs('/Users/rs548/Documents/Science/PeteHurley/SM/',3)
     #oneModel('/Users/rs548/Documents/Science/Blended/g-output.fits')
-    #generateTables('/Users/rs548/Documents/Science/PeteHurley/SM/')
+    generateTables('/Users/rs548/Documents/Science/PeteHurley/SM/')

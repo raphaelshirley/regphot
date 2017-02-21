@@ -21,24 +21,28 @@ and UltraVISTA.
 from rdflib import Namespace, Literal, Graph, XSD
 from astropy.io import fits
 
+
+
+typesdict ={'L':, # Logical 
+            'X':, # bit
+            'B':XSD.byte, # Unsigned byte
+            'I':, # 16-bit int
+            'J':XSD.int, # 32-bit int
+            'K':XSD.long, # 64-bit int
+            'A':, # character
+            'E':, # single prec float
+            'D':, # double prec float
+            'C':, # single prec compl
+            'M':, # double precis complex
+            'P':, # array descriptor
+            'Q':} # arraydescriptor
+
 def catalogue2rdf(cataloguefits, folder):
     
     n = Namespace('http://raphaelshirley.co.uk/galaxies/')
     cat = fits.open(cataloguefits)
     
-    typesdict ={'L':,  # Logical
-                'X':, # bit
-                'B':, # Unsigned byte
-                'I':, # 16-bit int
-                'J':, # 32-bit int
-                'K':, # 64-bit int
-                'A':, # character
-                'E':, # sing prec float
-                'D':, # double prec float
-                'C':, # single prec compl
-                'M':, # double precis complex
-                'P':, # array descriptor
-                'Q':} # arraydescriptor
+
     columns = cat[1].data.names
     predicates = columns
     datatypes = cat[1].data.formats

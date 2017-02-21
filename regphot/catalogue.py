@@ -33,24 +33,27 @@ from galfitm import optimiseM
 workDir = '/Users/rs548/Documents/Science/PeteHurley/'
 chdir(workDir + 'TRASH/')
 UVfolder = 'UV/'
-SDSSfolder = 'SDSS/'
+SDSSfolder = 'SDSS-X/'
 
 #Open FITS catalogue
-hdulist = fits.open(workDir + 
-                    'cosmos-hyperleda-sdss-dr13-2massXSC-4reg-flagged_HELP.fits')
+COSMOSlist = 'cosmos-hyperleda-sdss-dr13-2massXSC-4reg-flagged_HELP.fits'
+XMMlist = 'xmm-hyperleda-sdss-dr13-2massXSC-4reg-flagged.fits'
+hdulist = fits.open(workDir + XMMlist)
 
 
 
 #Options
-runUltraVISTA = True
-runSDSS = False
-
-runGalfit = True
-runGalfitM = False
-
-plotfigs = False
-downloadSDSS = False
+runUltraVISTA = False
 makeUVcutouts = False
+
+runSDSS = True
+downloadSDSS = True
+
+runGalfit = False
+runGalfitM = False
+plotfigs = False
+
+
 
 dimension = 150   #Size of cutout to fit (pixels)
 
@@ -144,13 +147,13 @@ for source in hdulist[1].data:
                  
                 UVimages = UVimages +[[band[0],UVCutoutFits,band[2]]]
                 
-        if plotfigs:
-            fig = plt.figure()
-            #norm=LogNorm(),
-            plt.imshow(UVCutoutFits[0].data, cmap='gray',  interpolation='none')
-            plt.title(source[0])
-            fig.savefig(workDir + 'pics/' + source[0] + '.png')
-            plt.close('all')                    
+            if plotfigs:
+                fig = plt.figure()
+                #norm=LogNorm(),
+                plt.imshow(UVCutoutFits[0].data, cmap='gray',  interpolation='none')
+                plt.title(source[0])
+                fig.savefig(workDir + 'pics/' + source[0] + '.png')
+                plt.close('all')                    
 
             
         galfitBand = 'Y'                
@@ -168,6 +171,7 @@ for source in hdulist[1].data:
     if runSDSS:
         #For a given object position go through all the SDSS bands
         SDSSimages = []
+
         #354.3,477.0,623.1,762.5,913.4 (nm)
         SDSSwavelengths = {'u':354.3,'g':477.0,'r':623.1,'i':762.5,'z':913.4}
         for band in ('u','g','r','i','z'):
@@ -198,34 +202,34 @@ for source in hdulist[1].data:
                 SDSSCutout = Cutout2D(SDSSplate[0][0].data, SDSSposition, SDSSsize,
                                       mode='partial', fill_value=0.0) #WCS????
                 #SDSSCutout.header = SDSSplate[0][0].header
-                SDSSCutoutFits = SDSSplate[0][0]
-                SDSSCutoutFits.data = SDSSCutout.data
-                SDSSCutoutFits.header = SDSSplate[0][0].header
+                SDSSCutoutFits = SDSSplate[0]
+                SDSSCutoutFits[0].data = SDSSCutout.data
+                SDSSCutoutFits[0].header = SDSSplate[0][0].header
                 xpixoffset = - (SDSSxpix -(SDSSsize/2) - SDSSplate[0][0].header['CRPIX1'])
                 ypixoffset = - (SDSSypix -(SDSSsize/2) - SDSSplate[0][0].header['CRPIX2'])
-                SDSSCutoutFits.header['CRPIX1'] = (xpixoffset,
+                SDSSCutoutFits[0].header['CRPIX1'] = (xpixoffset,
                 'X of reference pixel (modified by catalogue.py)')
-                SDSSCutoutFits.header['CRPIX2'] = (ypixoffset,
+                SDSSCutoutFits[0].header['CRPIX2'] = (ypixoffset,
                 'Y of reference pixel (modified by catalogue.py)')
-                SDSSCutoutFits.header['NAXIS1'] = (150,
+                SDSSCutoutFits[0].header['NAXIS1'] = (150,
                 'xpixels (modified by catalogue.py)')                
-                SDSSCutoutFits.header['NAXIS2'] = (150,
+                SDSSCutoutFits[0].header['NAXIS2'] = (150,
                 'ypixels (modified by catalogue.py)')                
                 
                 try:
-                    SDSSCutoutFits.writeto(workDir + 'SDSS/' + source[0] +'-'
+                    SDSSCutoutFits.writeto(workDir + SDSSfolder + source[0] +'-'
                                        + band + '.fits') #.data?
                                  #Cutout2D(SDSSplate[0][0].data, SDSSposition, SDSSsize).data)                 
                 except:
 
-                    remove(workDir + 'SDSS/' + source[0] +'-'+  band + '.fits')
-                    SDSSCutoutFits.writeto(workDir + 'SDSS/' + source[0] +'-'
+                    remove(workDir + SDSSfolder + source[0] +'-'+  band + '.fits')
+                    SDSSCutoutFits.writeto(workDir + SDSSfolder + source[0] +'-'
                                        + band + '.fits' ) #.data?   
 
 
             else:
                 try:                
-                    SDSSCutoutFits = fits.open(workDir + 'SDSS/' + 
+                    SDSSCutoutFits = fits.open(workDir + SDSSfolder + 
                                                source[0] + '-' + band + '.fits')
                 except:
                     print('no ', band, ' band fits cutout for ', source[0])
@@ -249,27 +253,27 @@ for source in hdulist[1].data:
             
             if band == 'r' and runGalfit:
                 #run Galfit on g band
-                optimise(source[0] + '-' + band + '.fits', workDir + 'SDSS/', source)
+                optimise(source[0] + '-' + band + '.fits', workDir + SDSSfolder, source)
                 
-            if band =='r':
-                nSDSS = nSDSS + 1
-                
+
+        nSDSS = nSDSS + 1        
         #print(len(SDSSimages))
         #runGalfitM = False
         if runGalfitM:
             #run GalfitM on all bands
             optimiseM(SDSSimages,source[0])
             nGalfitM = nGalfitM + 1
-        SDSSCutoutFits.close()
-        SDSSplate.close()
+        
+        
         
         print('Total for ', source[0],' was ',round(time.time()-objectt0,1),' s')
                 
 
 
-print('Code ran on ', nisin, 'objects in UltraVISTA and ignored ', nnotin, ' out of the field.')
-print('Galfit ran on ',nSDSS, ' SDSS objects')
-print('GalfitM ran on ',nGalfitM,' SDSS objects')
+print('Code ran on ', nisin, 'objects in UltraVISTA')
+print('Code ran on ', nSDSS, 'objects in SDSS')
+
+#print('GalfitM ran on ',nGalfitM,' SDSS objects')
 
 t1= time.time()
 print('Code completed in a total of ', round((t1-t0)/60,2), ' minutes.')

@@ -3,7 +3,9 @@
 """
 Created on Tue Jan 31 13:42:05 2017
 
-this scirpt is for post processing the outputs from batch runs of galfit or galfity m
+This script is for post processing data produced by other parts of the codebase.
+
+It contains function definitions which may also be useful to other modules.
 
 eventually this should write the models to a csv for use by XID+
 
@@ -21,6 +23,22 @@ from os import remove
 
 import csv
 
+def checkcatalogue(sdssid1,cat2):
+    matchfound = False
+    for source in cat2:
+        if sdssid1 == sdssid2:
+            matchfound = True
+    return matchfound
+    
+def comparecatalogues(cat1,cat2):
+    print('There are ', len(cat1), ' objects in catalogue 1')
+    print('There are ', len(cat2), ' objects in catalogue 2')
+    nmatch=0
+    for source1 in cat1:
+        if checkcatalogue(source1['SDSSid'],cat2):
+            nmatch += 1
+            
+    print('There are ', nmatch, ' objects from catalogue 1 in catalogue 2')
 
 def printGraphs(folder):
     numberOutputs = 0
@@ -121,7 +139,7 @@ def generateTables(folder,bandnames=['u','g','r','i','z']):
                 writer.writerow(allbandparams)
     return writer
             
-            
+           
             
             
 def printAllBandGraphs(folder):

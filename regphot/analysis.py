@@ -24,6 +24,7 @@ from os import remove
 import csv
 
 def checkcatalogue(sdssid1,cat2):
+    #First get the SDSSid for the provided objID
     matchfound = False
     for source in cat2:
         if sdssid1 == sdssid2:

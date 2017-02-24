@@ -13,27 +13,46 @@ import time
 #import astropy
 #from astropy.io import fits
 
-def optimiseM(images,source,field = None):
-    #print('galfitm.py has been called')
-    if field == None:
-        print('no field assigned for Galfit M run, assuming SDSS')
-        field = 'SDSS'
+def optimiseM(images,source,field = 'SDSS'):
+    """
+    This function runs Galfit M on a set of images for a given source. the 
+    images should be an array:
+    [['bandname','path/to/image.fits',bandwavelength],...]
     
-    #field = 'SDSS'
+    at present initial guesses are hard coded or from the masterlist
+    
+    Perhaps exp disks should be added on top of Sersic (n=4 or free n) fits
+    """
+    #print('galfitm.py has been called')
+
+    
     if field == 'UltraVISTA':
         plateScale = '0.14997825'
         magphotzero = '30.0,30.0,30.0,30.0,30.0'
         inputDir = '/Users/rs548/Documents/Science/PeteHurley/UV/'
         outputDir = '/Users/rs548/Documents/Science/PeteHurley/UVM/'
-
+        psflist = ('none'+
+                   ',none'+
+                   ',none'+
+                   ',none'+
+                   ',none')
         
     elif field == 'SDSS':
         plateScale = '0.396127'
         # SDSS from http://classic.sdss.org/dr7/algorithms/fluxcal.html
         magphotzero = '24.63,25.11,24.80,24.36,22.83'
-        inputDir = '/Users/rs548/Documents/Science/PeteHurley/SDSS/'
-        outputDir = '/Users/rs548/Documents/Science/PeteHurley/SM/'  
-
+        inputDir = '/Users/rs548/Documents/Science/PeteHurley/SDSS-X/'
+        outputDir = '/Users/rs548/Documents/Science/PeteHurley/SDSS-XM/' 
+        psflist = ('/Users/rs548/Documents/Science/PeteHurley/psf/SDSS/SDSS-SersicPSFonly-u.fits'+
+                   ',/Users/rs548/Documents/Science/PeteHurley/psf/SDSS/SDSS-SersicPSFonly-g.fits'+
+                   ',/Users/rs548/Documents/Science/PeteHurley/psf/SDSS/SDSS-SersicPSFonly-r.fits'+
+                   ',/Users/rs548/Documents/Science/PeteHurley/psf/SDSS/SDSS-SersicPSFonly-i.fits'+
+                   ',/Users/rs548/Documents/Science/PeteHurley/psf/SDSS/SDSS-SersicPSFonly-z.fits')
+#        psflist = ('none'+
+#                   ',none'+
+#                   ',none'+
+#                   ',none'+
+#                   ',none')
 
     
     filenames=''
@@ -98,7 +117,7 @@ def optimiseM(images,source,field = None):
     # Input PSF image (CSL of <nbands> FITS filenames) 
     # and a single diffusion kernel (FITS filename, # or omitted)
     #D) {inputDir}PSF-u.fits,{inputDir}PSF-g.fits,{inputDir}PSF-r.fits,{inputDir}PSF-i.fits,{inputDir}PSF-z.fits
-    D) none,none,none,none,none
+    D) {psflist}
     
     # PSF fine sampling factor relative to data 
     E) 1                   

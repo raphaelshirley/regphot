@@ -47,10 +47,10 @@ runUltraVISTA = False
 makeUVcutouts = False
 
 runSDSS = True
-downloadSDSS = True
+downloadSDSS = False
 
 runGalfit = False
-runGalfitM = False
+runGalfitM = True
 plotfigs = False
 
 

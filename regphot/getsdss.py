@@ -51,6 +51,11 @@ def getPlateFits(position,bandName):
     return images
 
 def objid2dr7id(objID):
+    """
+    This function takes a SDSS DR13 objID and returns a DR7 objID based on
+    RA/DEC
+    """
+    
     sql = """
 SELECT
  p.ra,p.dec

@@ -179,7 +179,7 @@ def printAllBandGraphs(folder):
         
 if __name__ == '__main__':
     #printGraphs('/Users/rs548/Documents/Science/PeteHurley/UVG/')
-    #printAllBandGraphs('/Users/rs548/Documents/Science/PeteHurley/UVM/')
+    printAllBandGraphs('/Users/rs548/Documents/Science/PeteHurley/SDSS-XM/')
     #print5bandGraphs('/Users/rs548/Documents/Science/PeteHurley/SM/',3)
     #oneModel('/Users/rs548/Documents/Science/Blended/g-output.fits')
-    generateTables('/Users/rs548/Documents/Science/PeteHurley/SM/')
+    #generateTables('/Users/rs548/Documents/Science/PeteHurley/SM/')

@@ -43,11 +43,11 @@ def optimiseM(images,source,field = 'SDSS'):
         magphotzero = '24.63,25.11,24.80,24.36,22.83'
         inputDir = '/Users/rs548/Documents/Science/PeteHurley/SDSS-X/'
         outputDir = '/Users/rs548/Documents/Science/PeteHurley/SDSS-XM/' 
-        psflist = ('/Users/rs548/Documents/Science/PeteHurley/psf/SDSS/SDSS-SersicPSFonly-u.fits'+
-                   ',/Users/rs548/Documents/Science/PeteHurley/psf/SDSS/SDSS-SersicPSFonly-g.fits'+
-                   ',/Users/rs548/Documents/Science/PeteHurley/psf/SDSS/SDSS-SersicPSFonly-r.fits'+
-                   ',/Users/rs548/Documents/Science/PeteHurley/psf/SDSS/SDSS-SersicPSFonly-i.fits'+
-                   ',/Users/rs548/Documents/Science/PeteHurley/psf/SDSS/SDSS-SersicPSFonly-z.fits')
+        psflist = ('/Users/rs548/Documents/Science/PeteHurley/psf/SDSS/SDSS-PSFfinal-u.fits'+
+                   ',/Users/rs548/Documents/Science/PeteHurley/psf/SDSS/SDSS-PSFfinal-g.fits'+
+                   ',/Users/rs548/Documents/Science/PeteHurley/psf/SDSS/SDSS-PSFfinal-r.fits'+
+                   ',/Users/rs548/Documents/Science/PeteHurley/psf/SDSS/SDSS-PSFfinal-i.fits'+
+                   ',/Users/rs548/Documents/Science/PeteHurley/psf/SDSS/SDSS-PSFfinal-z.fits')
 #        psflist = ('none'+
 #                   ',none'+
 #                   ',none'+

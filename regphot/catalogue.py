@@ -3,7 +3,23 @@
 """
 Created on Tue Dec 13 12:23:18 2016
 
+A principle module of the regphot python package.
+
+This script goes though a supplied catalogue and for every object it can:
+    
+Cutout a postage stamp from a supplied fits image.
+Download a fits plate and cutout the required postage stamp from SDSS using astroquery
+
+It can then run either Galfit on one band or GalfitM on a set of bands.
+
+Eventually this will manage a batch run for my deblending algorithms.
+
+Raphael Shirley
+Daphne Jackson Research Fellow
+Astronomy Centre, University of Sussex
 @author: rs548
+@raphaelshirley
+www.raphaelshirley.co.uk
 """
 from __future__ import division, print_function
 
@@ -259,6 +275,7 @@ for source in hdulist[1].data:
         nSDSS = nSDSS + 1        
         #print(len(SDSSimages))
         #runGalfitM = False
+
         if runGalfitM:
             #run GalfitM on all bands
             optimiseM(SDSSimages,source[0])

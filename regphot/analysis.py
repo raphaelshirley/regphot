@@ -144,6 +144,10 @@ def generateTables(folder,bandnames=['u','g','r','i','z']):
             
             
 def printAllBandGraphs(folder):
+    """
+    Go though a folder and print all the passband images/models/residuals
+    for every Galfit output file. Will have to be modified for pyprofit.
+    """
     numberOutputs = 0
     for filename in listdir(folder):
         if filename[-11:] == 'output.fits':
@@ -176,10 +180,41 @@ def printAllBandGraphs(folder):
             #remove('/Users/rs548/Documents/Science/PeteHurley/SDSS/' + filename)
             print('done a file')
     plt.close('all')
+    
+def generateTables(folder,bandnames=['u','g','r','i','z']):
+    """
+    A function to go through a folder of GalfitM output files (fits) and
+    print all the Sersic or Sersic/bulge parameters to a CSV
+    """
+    numberObjects = 0
+    outfile = open( folder + 'out.csv', 'w')
+    writer = csv.writer(outfile)
+    #Define a non general set of params to pull out for a SDSS UGRIZ fit
+    paramnames = ['DATAIN_U',
+                'CHISQ',
+                '1_XC_U',
+                '1_YC_U',
+                '1_MAG_U', '1_MAG_G', '1_MAG_R','1_MAG_I','1_MAG_Z',
+                '1_RE_U',
+                '1_N_U',
+                '1_AR_U',
+                '1_PA_U']
+    writer.writerow(paramnames)
+    for filename in listdir(folder):
+        if filename[-11:] == 'output.fits':
+            output = fits.open(folder + filename)
+            numBands = ((len(output) -1)/3) -1
+            #for band in range(0,numBands):
+            allbandparams = []
+            for param in paramnames:    
+                #print(band,numBands,param)                   
+                allbandparams += [output[6].header[param]]
+            writer.writerow(allbandparams)
+    return writer
         
 if __name__ == '__main__':
     #printGraphs('/Users/rs548/Documents/Science/PeteHurley/UVG/')
     printAllBandGraphs('/Users/rs548/Documents/Science/PeteHurley/SDSS-XM/')
     #print5bandGraphs('/Users/rs548/Documents/Science/PeteHurley/SM/',3)
     #oneModel('/Users/rs548/Documents/Science/Blended/g-output.fits')
-    #generateTables('/Users/rs548/Documents/Science/PeteHurley/SM/')
+    #generateTables('/Users/rs548/Documents/Science/PeteHurley/SDSS-XM/')

@@ -41,8 +41,8 @@ def optimiseM(images,source,field = 'SDSS'):
         plateScale = '0.396127'
         # SDSS from http://classic.sdss.org/dr7/algorithms/fluxcal.html
         magphotzero = '24.63,25.11,24.80,24.36,22.83'
-        inputDir = '/Users/rs548/Documents/Science/PeteHurley/SDSS-X/'
-        outputDir = '/Users/rs548/Documents/Science/PeteHurley/SDSS-XM/' 
+        inputDir = '/Users/rs548/Documents/Science/PeteHurley/SDSS/'
+        outputDir = '/Users/rs548/Documents/Science/PeteHurley/SDSS-M-BD/' 
         psflist = ('/Users/rs548/Documents/Science/PeteHurley/psf/SDSS/SDSS-PSFfinal-u.fits'+
                    ',/Users/rs548/Documents/Science/PeteHurley/psf/SDSS/SDSS-PSFfinal-g.fits'+
                    ',/Users/rs548/Documents/Science/PeteHurley/psf/SDSS/SDSS-PSFfinal-r.fits'+
@@ -132,7 +132,7 @@ def optimiseM(images,source,field = 'SDSS'):
     #F) mask-r.fits,none,mask-i.fits
     
     # File with parameter constraints (ASCII file)
-    G) none # {inputDir}bulgedisklocation.constraints              
+    G) /Users/rs548/Documents/Science/PeteHurley/psf/12xyequal.constraints # {inputDir}bulgedisklocation.constraints              
     #G) constraints_filename 12xyequal.constraints
     
     # Image region to fit (xmin xmax ymin ymax)
@@ -193,15 +193,25 @@ def optimiseM(images,source,field = 'SDSS'):
     # Only this first function includes multi-band examples, but the same approach
     # should work for all these functions.
     
+    # Object number: 1
     0) sersic     # Object type
     1) 75.  1    # position x [pixel]  (constant with wavelength)
     2) 75.  1    # position y [pixel]
     3) 17.0,17.0,17.0,17.0,17.0  4     # total magnitude in each band
-    4) 5.0,5.0,5.0,5.0,5.0   1     # R_e in each band
-    5) 2.0,2.0,2.0,2.0,2.0  1     # Sersic exponent in each band
+    4) 2.0,2.0,2.0,2.0,2.0   1     # R_e in each band
+    5) 4.0,4.0,4.0,4.0,4.0  0     # Sersic exponent in each band
     9) 1.0,1.0,1.0,1.0,1.0  1     # axis ratio (b/a) in each band
     10) 0.0            1     # position angle (PA), same value in each band
     Z) 0                  #  Skip this model in output image?  (yes=1, no=0)
+        
+    # Object number: 2
+     0) expdisk                #  object type
+     1) 75.0  75.0  1 1        #  position x, y
+     3) 17.0,17.0,17.0,17.0,17.0  4          #  Integrated magnitude	
+     4) 5.0,5.0,5.0,5.0,5.0   1         #  R_s    [pix]
+     9) 1.0,1.0,1.0,1.0,1.0  1     1             #  axis ratio (b/a)  
+    10) 0.0    1               #  position angle (PA) [deg: Up=0, Left=90]
+     Z) 0                      #  output option (0 = resid., 1 = Don't subtract) 
     
     #0) sersic     # Object type
     #1) 300.  1    # position x [pixel]  (constant with wavelength)

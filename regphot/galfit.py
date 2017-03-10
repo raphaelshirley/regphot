@@ -167,8 +167,28 @@ def optimise(fitsfile, folder, source, field=None,**kwargs):
     #chiSq = fitsOutput[2].header['CHISQ']
     #print('ChiSq is ',chiSq )
     
+###############################PROFIT INPUT TO COPY##########################
+#    profit_model = {'width':  data.image.shape[1],
+#                    'height': data.image.shape[0],
+#                    'magzero': data.magzero,
+#                    'psf': data.psf,
+#                    'profiles': {'sersic': sparams}
+#                   }
+#    print(profit_model)
+#    if use_mask:
+#        profit_model['calcmask'] = data.calcregion
+#    return allparams, np.array(pyprofit.make_model(profit_model))
+    
 #get chi squared for use by mcmc code
 def chisquared(image,model,*args,**kwargs):
+    """
+    This function should take an input that can be taken by pyprofit and return 
+    the same object that pyprofit would return. For rigour any code should
+    therefore be able to be run using both pyprofit and Galfit. This will allow 
+    comparison and help with publishing given the long standing of Galfit.
+    
+    
+    """
     temp = 'temp/'
     folder = '/Users/rs548/Documents/Science/Blended/'
     imageName = 'tempOut'

@@ -17,11 +17,18 @@ from astropy.io import fits
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 
+import numpy as np
+import pandas as pd
+from scipy import stats, integrate
+import seaborn as sns
+sns.set(color_codes=True)
+
 from os import listdir
 from os import getcwd
 from os import remove
 
 import csv
+
 
 def checkcatalogue(sdssid1,cat2):
     #First get the SDSSid for the provided objID
@@ -211,10 +218,49 @@ def generateTables(folder,bandnames=['u','g','r','i','z']):
                 allbandparams += [output[6].header[param]]
             writer.writerow(allbandparams)
     return writer
+
+
+def calculatePriors(datafile = '/Users/rs548/Documents/Science/PeteHurley/Simard/table3wheadings.dat'):
+    """
+    This functions takes in the Simard dat file and produces distributions on
+    the parameters for use as priors with MultiNest.
+    
+    Perhaps Gaussian parameter priors could be obtained from Sersic priors?
+    
+    Parameters:
+    - datafile: string
+        path to input data
+        
+    returns:
+    - distributions on the parameters eventually
+    
+    """
+    
+    #Write some code to produce a dat file with headers at the top
+    
+    data = pd.read_csv(datafile,sep='\s+')
+    #sns.jointplot(x="$n_b$", y="$R_{chl,g}$", data=data, xlim=(0,4), ylim=(0,50))
+    #sns.jointplot(x="$n_b$", y="$R_{chl,g}$", data=data,xlim=(0,4), ylim=(0,50))
+    #data.hist(x="$n_b$")
+    df2 = data[['z','$n_b$','$R_{chl,g}$','$g_{g2d}$','$M_{r,g}$','$e$']]
+    df2.replace(-99.99, 0)
+    snsplot = sns.pairplot( data=df2)
+    fig = snsplot.get_figure()
+    fig.savefig('/Users/rs548/Documents/Science/PeteHurley/Simard/Bihist.png')
+    return data
+    
+        
+    
+
+    
+    
         
 if __name__ == '__main__':
+    data = calculatePriors()
     #printGraphs('/Users/rs548/Documents/Science/PeteHurley/UVG/')
-    printAllBandGraphs('/Users/rs548/Documents/Science/PeteHurley/SDSS-XM/')
+    #printAllBandGraphs('/Users/rs548/Documents/Science/PeteHurley/SDSS-M-BD/')
     #print5bandGraphs('/Users/rs548/Documents/Science/PeteHurley/SM/',3)
     #oneModel('/Users/rs548/Documents/Science/Blended/g-output.fits')
     #generateTables('/Users/rs548/Documents/Science/PeteHurley/SDSS-XM/')
+    
+    

@@ -38,7 +38,7 @@ t0 = time.time()
 
 # MY MODULES
 #from regphot import getsdss
-from getsdss import getPlateFits
+from utils import getPlateFits
 from galfit import optimise
 from galfitm import optimiseM
 
@@ -46,57 +46,126 @@ from galfitm import optimiseM
 
 
 #############################INPUTS############################################
-workDir = '/Users/rs548/Documents/Science/PeteHurley/'
-chdir(workDir + 'TRASH/')
-UVfolder = 'UV/'
-SDSSfolder = 'SDSS-X/'
-
-#Open FITS catalogue
-COSMOSlist = 'cosmos-hyperleda-sdss-dr13-2massXSC-4reg-flagged_HELP.fits'
-XMMlist = 'xmm-hyperleda-sdss-dr13-2massXSC-4reg-flagged.fits'
-hdulist = fits.open(workDir + XMMlist)
-
-
-
-#Options
-runUltraVISTA = False
-makeUVcutouts = False
-
-runSDSS = True
-downloadSDSS = False
-
-runGalfit = False
-runGalfitM = True
-plotfigs = False
-
-
-
-dimension = 150   #Size of cutout to fit (pixels)
-
-
-#Location of the UltraVISTA FITS images
-UVYfits = '/Volumes/Raph500/data/ADP.2016-03-17T08-31-54.127.fits'
-UVJfits = '/Volumes/Raph500/data/ADP.2016-03-17T08-31-54.147.fits'
-UVHfits = '/Volumes/Raph500/data/ADP.2016-03-17T08-31-54.060.fits'
-UVKsfits = '/Volumes/Raph500/data/ADP.2016-03-17T08-31-54.113.fits'
-UVNB118fits = '/Volumes/Raph500/data/ADP.2016-03-17T08-31-54.107.fits'
-
-UVfits = (('Y', UVYfits, 1020),
-          ('J', UVJfits, 1250),
-          ('H', UVHfits, 1650),
-          ('Ks', UVKsfits, 2200),
-          ('NB118', UVNB118fits, 1180))
+if __name__ == '__main__':
+    workDir = '/Users/rs548/Documents/Science/PeteHurley/'
+    chdir(workDir + 'TRASH/')
+    UVfolder = 'UV/'
+    SDSSfolder = 'SDSS/'
+    
+    #Open FITS catalogue
+    COSMOSlist = 'cosmos-hyperleda-sdss-dr13-2massXSC-4reg-flagged_HELP.fits'
+    XMMlist = 'xmm-hyperleda-sdss-dr13-2massXSC-4reg-flagged.fits'
+    hdulist = fits.open(workDir + COSMOSlist)
+    
+    
+    #Options
+    runUltraVISTA = False
+    makeUVcutouts = False
+    
+    runSDSS = True
+    downloadSDSS = False
+    
+    runGalfit = False
+    runGalfitM = True
+    plotfigs = False
+    options = {'unUltraVISTA':False,
+               'makeUVcutouts':False,
+               'runSDSS':True,
+               'downloadSDSS':False,
+               'runGalfit':False,
+               'runGalfitM':True,
+               'plotfigs':False}
+    
+    
+    
+    dimension = 150   #Size of cutout to fit (pixels)
+    
+    
+    #Location of the UltraVISTA FITS images
+    UVYfits = '/Volumes/Raph500/data/ADP.2016-03-17T08-31-54.127.fits'
+    UVJfits = '/Volumes/Raph500/data/ADP.2016-03-17T08-31-54.147.fits'
+    UVHfits = '/Volumes/Raph500/data/ADP.2016-03-17T08-31-54.060.fits'
+    UVKsfits = '/Volumes/Raph500/data/ADP.2016-03-17T08-31-54.113.fits'
+    UVNB118fits = '/Volumes/Raph500/data/ADP.2016-03-17T08-31-54.107.fits'
+    
+    UVfits = (('Y', UVYfits, 1020),
+              ('J', UVJfits, 1250),
+              ('H', UVHfits, 1650),
+              ('Ks', UVKsfits, 2200),
+              ('NB118', UVNB118fits, 1180))
 
 
 
 
 #############################INPUTS############################################
+
+
+def UltraVISTA(source, 
+               UVfits,
+               size = dimension,
+               makeUVcutouts = False,
+               runGalfit=False, 
+               runGalfitM=False,
+               infolder = None,
+               outfolder = None):
+    """
+    for a given source in a catalogue open/create a fits image and run Galfit
+    if requested
+    """
+    if makeUVcutouts:
+        images = makeUVcutouts(source,size,UVfits)
+    else:
+        images = openimages(source)
+        
+    if runGalfit:
+        optimise(images[0],source[0],field = 'UltraVISTA')
+    if runGalfitM:
+        optimiseM(images,source[0],)
+        
+    
+    
+def SDSS(source,
+         downloadSDSS = False,
+         runGalfit=False, 
+         runGalfitM=False,
+         infolder = None,
+         outfolder = None):
+    """
+    for a given source download and cutout a fits if required and run Galfit
+    or GalfitM (or eventually pyprofit)
+    """
+    if downloadSDSS:
+        images = downloadSDSScutouts(source,size,UVfits)
+    else:
+        images = openimages(source,infolder)
+        
+    if runGalfit:
+        optimise(images[0],source[0],field = 'UltraVISTA')
+    if runGalfitM:
+        optimiseM(images,source[0],)
+    
+def runcatalogue(catfile,UVfits= None,runUltraVISTA = False, runSDSS = False):
+    """
+    Loop over a catalogue and run the UltraVISTA/SDSS image cutting and Galfit
+    optimisation code. Reimplement the scripting below as functions to make 
+    this operate like a proper Python package.
+    """
+    nrc = 0
+    hdulist = fits.open(catfile)
+    for source in catfile:
+        if runUltraVista:
+            UltraVISTA(source,UVfits)
+        if runSDSS:
+            SDSS(source)
+        nrc += 1
+    print( nrc)
+        
+    
 nisin = 0
 nnotin = 0 
 nSDSS = 0
 nGalfitM = 0
 n = 0 
-
 #Go through every object, check it is in field and then do stuff with it
 #I deally this will eventually cutout an appropriate fits file and run
 #Galfit or Galfitm on it 

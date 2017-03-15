@@ -68,7 +68,7 @@ if __name__ == '__main__':
     runGalfit = False
     runGalfitM = True
     plotfigs = False
-    options = {'unUltraVISTA':False,
+    options = {'runUltraVISTA':False,
                'makeUVcutouts':False,
                'runSDSS':True,
                'downloadSDSS':False,
@@ -99,6 +99,73 @@ if __name__ == '__main__':
 
 #############################INPUTS############################################
 
+def makeUVcutouts(source,dimension,UVfits,workdir,UVfolder):
+    """
+    Take in a fits image and cutout a postage stamp of a given size at a given 
+    location
+    """
+    UVwcs = WCS(UVfits[0][1])
+    UVxpix, UVypix = UVwcs.all_world2pix(source['ra_sdss'],source['dec_sdss'],0)
+    #top left is 150.77177 +02.80870
+    #bottom right is 149.29941 +01.59448
+    
+    UVsize = (dimension,dimension)
+    UVposition = (UVxpix , UVypix )
+
+    UVimages=[]
+    for band in UVfits:
+         
+
+        UVCutoutFits = fits.open(band[1])       
+        cutout = Cutout2D(UVCutoutFits[0].data, UVposition, UVsize,
+                      mode='partial', fill_value=0.0)
+        UVCutoutFits[0].data = cutout.data
+        xpixoffset = - (UVxpix -(UVsize[0]/2) - UVCutoutFits[0].header['CRPIX1'])
+        ypixoffset = - (UVypix -(UVsize[1]/2) - UVCutoutFits[0].header['CRPIX2'])
+        UVCutoutFits[0].header['CRPIX1'] = (xpixoffset,
+        'X of reference pixel (modified rs548)')
+        UVCutoutFits[0].header['CRPIX2'] = (ypixoffset,
+        'Y of reference pixel (modified rs548)')
+        UVCutoutFits[0].header['CRVAL1'] = (source['ra_sdss'],
+        'RA of reference pixel (deg) (modified rs548)')
+        UVCutoutFits[0].header['CRVAL2'] = (source['dec_sdss'],
+        'Dec of reference pixel (deg) (modified rs548)')
+        UVCutoutFits[0].header['NAXIS1'] = (150,
+        'xpixels (modified by catalogue.py)')                
+        UVCutoutFits[0].header['NAXIS2'] = (150,
+        'ypixels (modified by catalogue.py)') 
+        try:
+            UVCutoutFits.writeto(workDir + UVfolder 
+                                 + source[0] +'-'+ band[0] + '.fits')
+        except:
+            remove(workDir + UVfolder + source[0] +'-'+  band[0] + '.fits')
+            UVCutoutFits.writeto(workDir + UVfolder 
+                                 + source[0] +'-'+  band[0] + '.fits') 
+         
+        UVimages = UVimages +[[band[0],UVCutoutFits,band[2]]]
+    return UVimages
+    
+def openimages(source,bandinfo,workdir,folder):
+    """
+    Open an array of fits images, one for each band
+    """
+    images=[]
+    for band in bandinfo:
+
+        try:
+            CutoutFits = fits.open(workDir + folder + 
+                                       source[0] + '-' + band[0] + '.fits')
+        except:
+            print('No UltraVISTA fits cutout for ',source[0])
+         
+        images = images +[[band[0],CutoutFits,band[2]]]
+    return images
+    
+def downloadSDSScutouts(source,size,SDSSbandinfo):
+    """
+    Download the fits plate for a given location for each band and cutout a 
+    postage stamp and put it in the appropriate folder
+    """
 
 def UltraVISTA(source, 
                UVfits,
@@ -115,7 +182,7 @@ def UltraVISTA(source,
     if makeUVcutouts:
         images = makeUVcutouts(source,size,UVfits)
     else:
-        images = openimages(source)
+        images = openimages(source,UVfits)
         
     if runGalfit:
         optimise(images[0],source[0],field = 'UltraVISTA')
@@ -125,6 +192,7 @@ def UltraVISTA(source,
     
     
 def SDSS(source,
+         size = dimension,
          downloadSDSS = False,
          runGalfit=False, 
          runGalfitM=False,
@@ -134,8 +202,13 @@ def SDSS(source,
     for a given source download and cutout a fits if required and run Galfit
     or GalfitM (or eventually pyprofit)
     """
+    SDSSbandinfo = (('u', '', 354.3),
+                    ('g', '', 477.0),
+                    ('r', '', 623.1),
+                    ('i', '', 762.5),
+                    ('z', '', 913.4))
     if downloadSDSS:
-        images = downloadSDSScutouts(source,size,UVfits)
+        images = downloadSDSScutouts(source,size,SDSSbandinfo)
     else:
         images = openimages(source,infolder)
         
@@ -152,7 +225,7 @@ def runcatalogue(catfile,UVfits= None,runUltraVISTA = False, runSDSS = False):
     """
     nrc = 0
     hdulist = fits.open(catfile)
-    for source in catfile:
+    for source in hdulist:
         if runUltraVista:
             UltraVISTA(source,UVfits)
         if runSDSS:

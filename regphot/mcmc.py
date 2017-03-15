@@ -101,3 +101,42 @@ def fakeTestLogChi2(image,model):
     return np.log(fakeTestChi2(image,model))
 
 d = fakeTestLogChi2('/path/to/fakeimage.fits', testModel)
+
+
+
+def lnprior(w):
+    """
+    Returns the prior probabilty over the parameter vector w. This can be built 
+    on a multivariate Gaussian over the parameter space for a given number of 
+    Sersic profiles
+    """
+    numSersics = len(w)
+    
+    
+    
+def lnlike(image,w):
+    """
+    Returns the log liklihood for a given data point (image) and parameter 
+    vector w.
+    
+    $ln(\mathcal{L}) = \chi^2 $
+    
+    
+    """
+    chi2 = chi2('pyprofit',w)
+
+def multinestevidence():
+    """
+    Input prior over paramters and black box function for evaluating ln liklihood
+    based on chi2 from image/model and calcualte evidence for given model
+    in preferebly the exact same way to emcee to allow comparison
+    """
+    
+def emceeevidence():
+    """
+    Input prior over paramters and black box function for evaluating ln liklihood
+    based on chi2 from image/model and calcualte evidence for given model
+    in preferebly the exact same way to multinest to allow comparison
+    """
+
+

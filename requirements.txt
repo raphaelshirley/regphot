@@ -1,8 +1,8 @@
-pip packages:
 astropy
 pyprofit
-
-Other software:
-galfit
-galfitm
-sextractor
+seaborn
+numpy
+scipy
+pandas
+pymultinest
+emcee

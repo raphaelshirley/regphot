@@ -35,11 +35,13 @@ import pymultinest
 import math, os
 if not os.path.exists("chains"): os.mkdir("chains")
 
-def prior(mean,cov):
+def prior(cube, ndim, nparams):
     """
-    Returns the prior probabilty over the parameter vector w. This can be built 
+    Returns the prior probabilty by stretching the unit cube. This can be built 
     on a multivariate Gaussian over the parameter space for a given number of 
-    Sersic profiles
+    Sersic profiles. The required form for multinest takes the cube of 
+    probabilities and returns the inverse cumulative distribution. The value 
+    that has a probability less than the input value p such that  P(x<X) = p
     
     inputs:
         w,      1-d array,      parameter vector
@@ -57,7 +59,7 @@ def prior(mean,cov):
     
     
     
-def lnlike(image,w):
+def lnlike(cube, ndim, nparams):
     """
     Returns the log liklihood for a given data point (image) and parameter 
     vector w.

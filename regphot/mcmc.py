@@ -35,6 +35,18 @@ import pymultinest
 import math, os
 if not os.path.exists("chains"): os.mkdir("chains")
 
+
+#I may want to define a seperate model class that can produce a general model
+def model1():
+    """
+    This model is composed of one Sersic profile
+    """
+    
+def model2():
+    """
+    This model is composed of two Sersic profiles
+    """
+
 def prior(cube, ndim, nparams):
     """
     Returns the prior probabilty by stretching the unit cube. This can be built 
@@ -44,16 +56,18 @@ def prior(cube, ndim, nparams):
     that has a probability less than the input value p such that  P(x<X) = p
     
     inputs:
-        w,      1-d array,      parameter vector
-        cov,    array,          covariance matrix for parameter
+        cube,       1-d array,          input a uniform prior on unit hypercube
+        ndim,       int,                covariance matrix for parameter
+        nparams,    int,                number of parameters in model
         
-    outputs:
-        prior,  scipy object,   normalised probability density for gaussian 
-                                prior with specified covariance matrix the
-                                output object can generate a pdf for a given 
-                                parameter vector by calling "prior.pdf(w)"
+    outputs (this is not returned by the function but modified by it):
+        cube,       1-d array,          the unit hypercube is mapped to the 
+                                        parameter hypercube
     """
-    prior  = multivariate_normal(mean,cov)
+#    for i in range(nparams):
+#        cube[i] *=  scipy.stats.norm(mu, std).ppf(cube[i])
+    cube[0] = 
+    cube[1] = 
     
     return prior
     
@@ -64,11 +78,16 @@ def lnlike(cube, ndim, nparams):
     Returns the log liklihood for a given data point (image) and parameter 
     vector w.
     
-    $ln(\mathcal{L}) = \chi^2 $
+    $ln(\mathcal{L}) = -1/2 \chi^2 + const $
     
     
     """
-    chi2 = chi2('pyprofit',w)
+    #First the cube must be transformed into the parameter vector
+    w = [None] * ndim
+    for i in range(ndim):
+        w[i] = 
+    chi2 = chi2('pyprofit',cube)
+    lnlike = -0.5* chi2
     return lnlike
 
 def multinestevidence(mean,cov,model):

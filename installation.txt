@@ -1,0 +1,19 @@
+This document contains some information about what I had to do to get all the necessary 
+dependencies working on my machine (Mac OSX + apollo HPC at Sussex)
+
+Galfit:
+I managed to get a precompiled version of Galfit and GalfitM for Mac.
+
+PyProfit:
+Pyprofit took a while but eventually it worked simply using pip. They are not concentrating
+on the Python version so there are a few issues with scipy optimisation
+
+MultiNest:
+I followed the advice at http://astrobetter.com/wiki/MultiNest+Installation+Notes
+I downloaded MultiNest from Johannes Buchner's GitHub. I had trouble with cmake but
+just had to change the target for the compiler and re run cmake. 
+
+After compiling multinest I had to export the target to the multinest executable to my PATH
+
+
+

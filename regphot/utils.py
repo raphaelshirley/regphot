@@ -14,6 +14,9 @@ for objID info to out put Simard B/D fits for a given object.
 from astroquery.sdss import SDSS
 from astropy import coordinates
 from astropy.io import fits
+from astropy.wcs import WCS
+from astropy.nddata import Cutout2D
+
 import os
 import csv
 
@@ -29,26 +32,99 @@ import csv
 #    print(f)
 
 def getPlateFits(position,bandName):
+    """Get SDSS plate in fits format
+    
+    This function takes a position and band and returns the available fits images from 
+    SDSS using Astroquery
+    
+    Parameters
+    ----------
+    position: string
+        Ra/Dec position with units e.g. ' 35.2345342d 5.3452346d'
+    bandName: string
+        Name of band e.g. i from ugrizy
+
+
+    Returns
+    -------
+    images astropy.table.Table
+        i think the return is an HDUlist of all the available fits for a position/band.
+    """
     #First check if it is already there by looping through files
     pos = coordinates.SkyCoord(position, frame='icrs')
     xid = SDSS.query_region(pos)
-#    bandName = 'g'
-#    plate = xid[0]['plate']
+    #    bandName = 'g'
+    #    plate = xid[0]['plate']
     images = SDSS.get_images(matches=xid, band=bandName)
-#    filename = str(plate) + '-' + bandName + '.fits'
-#    alreadyDownloaded = False
-#    for f in os.listdir('/Users/rs548/Documents/Science/PeteHurley/SDSS/'):
-#        print(f)
-#        if f == filename:
-#            alreadyDownloaded = True
-#    
-#    if alreadyDownloaded == False:
-#        im = SDSS.get_images(matches=xid, band=bandName)
-#        im.writeto('/Users/rs548/Documents/Science/PeteHurley/SDSS/' + filename)
-#    else:
-#        im = fits.open('/Users/rs548/Documents/Science/PeteHurley/SDSS/' + filename)
+    #    filename = str(plate) + '-' + bandName + '.fits'
+    #    alreadyDownloaded = False
+    #    for f in os.listdir('/Users/rs548/Documents/Science/PeteHurley/SDSS/'):
+    #        print(f)
+    #        if f == filename:
+    #            alreadyDownloaded = True
+    #    
+    #    if alreadyDownloaded == False:
+    #        im = SDSS.get_images(matches=xid, band=bandName)
+    #        im.writeto('/Users/rs548/Documents/Science/PeteHurley/SDSS/' + filename)
+    #    else:
+    #        im = fits.open('/Users/rs548/Documents/Science/PeteHurley/SDSS/' + filename)
         
     return images
+
+def cutoutFits(image,position,size):
+    """"Cutout an image from within a fits file and return a fits image with correct wcs
+    
+    The Cutout2D object does not have the normal fits methods of associated header data
+    So this function exists do cutout the array and then put it back in the image 
+    with corrected wcs.
+    
+    Parameters
+    ----------
+    image: ndarray
+        The fits image
+    position: string
+        Name of band e.g. i from ugrizy
+    size: int, array-like, astropy.units.Quantity
+    	Size to cut in pixels or can be angle if use astropy Quantity
+
+
+    Returns
+    -------
+    images astropy.io.fits
+        This will be the same as the input image but a cutout
+    
+    """"
+    cutout = Cutout2D(image[0].data, 
+                      position, 
+                      size,
+                      mode='partial', 
+                      fill_value=0.0,
+                      image[0].wcs)
+    image.data = cutout.data
+
+    image[0].header['CRPIX1'] = (xpixoffset,
+    'X of reference pixel (modified rs548)')
+    image[0].header['CRPIX2'] = (ypixoffset,
+    'Y of reference pixel (modified rs548)')
+    image[0].header['CRVAL1'] = (position[0],
+    'RA of reference pixel (deg) (modified rs548)')
+    image[0].header['CRVAL2'] = (position[0],
+    'Dec of reference pixel (deg) (modified rs548)')
+    image[0].header['NAXIS1'] = (len(cutout.data),
+    'xpixels (modified by catalogue.py)')                
+    image[0].header['NAXIS2'] = (len(cutout.data),
+    'ypixels (modified by catalogue.py)') 
+    return image
+    #try:
+    #    UVCutoutFits.writeto(workDir + UVfolder 
+    #                             + source[0] +'-'+ band[0] + '.fits')
+    #except:
+    #    remove(workDir + UVfolder + source[0] +'-'+  band[0] + '.fits')
+    #    UVCutoutFits.writeto(workDir + UVfolder 
+    #                             + source[0] +'-'+  band[0] + '.fits')
+    
+
+
 
 def objid2dr7id(objID):
     """

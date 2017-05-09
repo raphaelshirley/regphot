@@ -105,7 +105,7 @@ def getsimardrow(dr7id,simarddata):
         #outputary = [row for row in datfile if row[0]==dr7id]
     outputary  = ['empty']
     for row in reader:
-        print row
+        print( row)
         if row[0] == dr7id:
             outputary = row
         

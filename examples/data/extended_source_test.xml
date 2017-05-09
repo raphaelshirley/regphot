@@ -1,0 +1,41 @@
+<?xml version='1.0' encoding='utf-8'?>
+<VOTABLE version="1.2" xmlns="http://www.ivoa.net/xml/VOTable/v1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.2 http://vo.ari.uni-heidelberg.de/docs/schemata/VOTable-1.2.xsd"><DESCRIPTION> 2MASS all-sky catalogue of extended sources (XSC, IPAC/UMass,
+2003-2006) limited to HELP coverage.</DESCRIPTION><RESOURCE><INFO name="queryPars" value="(q3c_radial_query(RAJ2000, DEJ2000, %(RA0)s, %(DEC0)s, %(SR0)s)) AND (Field = %(Field0)s)">{'SR0': 0.016666666666666666, 'DEC0': -5.51731, u'Field0': 'XMM-LSS',
+'RA0': 35.40193}</INFO><TABLE name="apttenohwbdn"><INFO name="source" value="2003yCat.2246....0C"></INFO><GROUP ID="ahsstlihwbdn" name="note-1"><DESCRIPTION>
+The confusion flags are defined as follows:
+
+= ========================================================================
+0 no other sources within aperture used
+1 aperture contained pixels masked off in coadd
+2 aperture contained pixels masked off due to neighboring sources
+3 aperture contained pixels that had a point source flux subtracted off
+4 aperture contained pixels within bright star mask
+5 aperture contained pixels masked off due to persistence
+6 aperture ran into coadd boundary
+7 aperture contained pixels within bright galaxy mask
+9 integrated flux is negativeendTABULAR If the integrated flux is
+  negative, a mag value is calculated using
+  BFMag = 99.0 - [ZERO_CAL - 2.5 log10(abs(flux))]; the resulting mag
+  range is between ~ 75 and 99.
+= ========================================================================</DESCRIPTION><FIELDref ref="f_J_K20e"/><FIELDref ref="f_H_K20e"/><FIELDref ref="f_K_K20e"/></GROUP><GROUP ID="aedstlihwbdn" name="note-2"><DESCRIPTION>
+The contamination/confusion flag indicates whether the source's photometry
+and position may be affected by artifacts of, or confusion with, nearby
+bright stars. Sources are tested for contamination and/or confusion in the
+order given below, and once a flag is applied to the source, testing is
+stopped in that band.
+The flag values indicate the source may be:
+
+====== ====================================================================
+U      unreliable source; probable image artifact detection (none)
+C      affected by confusion with or artifact of a nearby bright star
+       (none)
+A or a known artifacts
+z      in close proximity to a large galaxy; these sources are usually
+       junk
+Z      Derived from the Large Galaxy Atlas
+0      default value - not contaminated
+====== ====================================================================</DESCRIPTION><FIELDref ref="cc"/></GROUP><GROUP utype="stc:CatalogEntryLocation"><PARAM arraysize="*" datatype="char" name="CoordFlavor" utype="stc:AstroCoordSystem.SpaceFrame.CoordFlavor" value="SPHERICAL"/><PARAM arraysize="*" datatype="char" name="CoordRefFrame" utype="stc:AstroCoordSystem.SpaceFrame.CoordRefFrame" value="ICRS"/><PARAM arraysize="*" datatype="char" name="Epoch" utype="stc:AstroCoords.Position2D.Epoch" value="2000.0"/><PARAM arraysize="*" datatype="char" name="yearDef" utype="stc:AstroCoords.Position2D.Epoch.yearDef" value="J"/><PARAM arraysize="*" datatype="char" name="URI" utype="stc:DataModel.URI" value="http://www.ivoa.net/xml/STC/stc-v1.30.xsd"/><FIELDref ref="RAJ2000" utype="stc:AstroCoords.Position2D.Value2.C1"/><FIELDref ref="DEJ2000" utype="stc:AstroCoords.Position2D.Value2.C2"/></GROUP><FIELD ID="Field" arraysize="*" datatype="char" name="Field" ucd="meta.id;obs.field"><DESCRIPTION>Name of the field in HELP survey</DESCRIPTION></FIELD><FIELD ID="ID2MASX" arraysize="*" datatype="char" name="ID2MASX" ucd="meta.id;meta.main"><DESCRIPTION>Source designation</DESCRIPTION></FIELD><FIELD ID="RAJ2000" datatype="double" name="RAJ2000" ucd="pos.eq.ra;meta.main" unit="deg"><DESCRIPTION>Right Ascension (J2000)</DESCRIPTION></FIELD><FIELD ID="DEJ2000" datatype="double" name="DEJ2000" ucd="pos.eq.dec;meta.main" unit="deg"><DESCRIPTION>Declination (J2000)</DESCRIPTION></FIELD><FIELD ID="supRAdeg" datatype="double" name="supRAdeg" ucd="pos.eq.ra" unit="deg"><DESCRIPTION>Super-coadd centroid RA (J2000)</DESCRIPTION></FIELD><FIELD ID="supDEdeg" datatype="double" name="supDEdeg" ucd="pos.eq.dec" unit="deg"><DESCRIPTION>Super-coadd centroid Dec (J2000)</DESCRIPTION></FIELD><FIELD ID="density" datatype="double" name="density" ucd="phys.density"><DESCRIPTION>Coadd log(density) of stars with k&lt;14mag</DESCRIPTION></FIELD><FIELD ID="r_K20e" datatype="double" name="r_K20e" ucd="phys.angSize;src" unit="arcsec"><DESCRIPTION>Semi-major axis of fiducial ellipse at isophote K=20mag/arcsec^2</DESCRIPTION></FIELD><FIELD ID="J_K20e" datatype="double" name="J_K20e" ucd="phot.mag;em.IR.J" unit="mag"><DESCRIPTION>J magnitude in K20e ellipse</DESCRIPTION></FIELD><FIELD ID="e_J_K20e" datatype="double" name="e_J_K20e" ucd="stat.error" unit="mag"><DESCRIPTION>1 sigma uncertainty on J.K20e</DESCRIPTION></FIELD><FIELD ID="f_J_K20e" datatype="short" name="f_J_K20e" ucd="meta.code"><DESCRIPTION>Confusion flags of J.K20e</DESCRIPTION><VALUES null="-9999"></VALUES></FIELD><FIELD ID="H_K20e" datatype="double" name="H_K20e" ucd="phot.mag;em.IR.H" unit="mag"><DESCRIPTION>H magnitude in K20e ellipse</DESCRIPTION></FIELD><FIELD ID="e_H_K20e" datatype="double" name="e_H_K20e" ucd="stat.error" unit="mag"><DESCRIPTION>1 sigma uncertainty on H.K20e</DESCRIPTION></FIELD><FIELD ID="f_H_K20e" datatype="short" name="f_H_K20e" ucd="meta.code"><DESCRIPTION>Confusion flags of H.K20e</DESCRIPTION><VALUES null="-9999"></VALUES></FIELD><FIELD ID="K_K20e" datatype="double" name="K_K20e" ucd="phot.mag;em.IR.K" unit="mag"><DESCRIPTION>K magnitude in K20e ellipse</DESCRIPTION></FIELD><FIELD ID="e_K_K20e" datatype="double" name="e_K_K20e" ucd="stat.error" unit="mag"><DESCRIPTION>1 sigma uncertainty on K.K20e</DESCRIPTION></FIELD><FIELD ID="f_K_K20e" datatype="short" name="f_K_K20e" ucd="meta.code"><DESCRIPTION>Confusion flags of K.K20e</DESCRIPTION><VALUES null="-9999"></VALUES></FIELD><FIELD ID="Kb_a" datatype="double" name="Kb_a" ucd="phys.size.axisRatio"><DESCRIPTION>K minor/major axis ratio to 3 sigma ellipse</DESCRIPTION></FIELD><FIELD ID="Kpa" datatype="short" name="Kpa" ucd="pos.posAng" unit="deg"><DESCRIPTION>K pos.angle to 3 sigma ellipse</DESCRIPTION><VALUES null="-9999"></VALUES></FIELD><FIELD ID="Sb_a" datatype="double" name="Sb_a" ucd="phys.size.axisRatio"><DESCRIPTION>Minor/major axis ratio fit to 3 sigma isophote</DESCRIPTION></FIELD><FIELD ID="Spa" datatype="short" name="Spa" ucd="pos.posAng" unit="deg"><DESCRIPTION>Super-coadd angle to major axis (E of N)</DESCRIPTION><VALUES null="-9999"></VALUES></FIELD><FIELD ID="r_ext" datatype="double" name="r_ext" ucd="phys.angSize;src" unit="arcsec"><DESCRIPTION>Extrapolation/total radius of fit to radial profile</DESCRIPTION></FIELD><FIELD ID="J_ext" datatype="double" name="J_ext" ucd="phot.mag;em.IR.J" unit="mag"><DESCRIPTION>J magnitude in r.ext</DESCRIPTION></FIELD><FIELD ID="e_J_ext" datatype="double" name="e_J_ext" ucd="stat.error" unit="mag"><DESCRIPTION>1 sigma uncertainty on J.ext</DESCRIPTION></FIELD><FIELD ID="H_ext" datatype="double" name="H_ext" ucd="phot.mag;em.IR.H" unit="mag"><DESCRIPTION>H magnitude in r.ext</DESCRIPTION></FIELD><FIELD ID="e_H_ext" datatype="double" name="e_H_ext" ucd="stat.error" unit="mag"><DESCRIPTION>1 sigma uncertainty on H.ext</DESCRIPTION></FIELD><FIELD ID="K_ext" datatype="double" name="K_ext" ucd="phot.mag;em.IR.K" unit="mag"><DESCRIPTION>K magnitude in r.ext</DESCRIPTION></FIELD><FIELD ID="e_K_ext" datatype="double" name="e_K_ext" ucd="stat.error" unit="mag"><DESCRIPTION>1 sigma uncertainty on K.ext</DESCRIPTION></FIELD><FIELD ID="cc" arraysize="*" datatype="char" name="cc" ucd="meta.code"><DESCRIPTION>Contamination or confusion flag</DESCRIPTION><VALUES null="-9999"></VALUES></FIELD><DATA><BINARY><STREAM encoding="base64">AAAAB1hNTS1MU1MAAAAQMDIyMTM2NDYtMDUzMTE3MEBBs3NcGC7LwBYV6E8JUo9AQbNzfaYeDMAW
+FeSjgydnQARmZmZmZmZASYAAAAAAAEAlDEm6XjU/P5iTdLxqfvoAAEAj+VgQYk3TP6R64UeuFHsA
+AEAjYEGJN0vHP6ocrAgxJukAAD/lHrhR64Uf/8Q/3rhR64UeuP+6QFW9cKPXCj1AJEo9cKPXCj+Y
+k3S8an76QCN4UeuFHrg/pHrhR64Ue0Aiz1wo9cKPP6ocrAgxJukAAAABMA==
+</STREAM></BINARY></DATA></TABLE></RESOURCE></VOTABLE>
